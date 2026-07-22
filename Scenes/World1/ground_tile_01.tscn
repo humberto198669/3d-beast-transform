@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://btlqv65d407n3"]
+
+[ext_resource type="PackedScene" uid="uid://ihel0ut76ahe" path="res://Assets/Models/Enviroment/GroundTile01.glb" id="1_2tcqd"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mhv3j"]
+size = Vector3(2.0, 0.3, 0.915)
+
+[node name="GroundTile01" unique_id=876708623 instance=ExtResource("1_2tcqd")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="1" unique_id=1260210200]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0" unique_id=1888475661]
+shape = SubResource("BoxShape3D_mhv3j")

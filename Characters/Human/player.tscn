@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://dtlchmt4fr0yc"]
+
+[ext_resource type="Script" uid="uid://uyoo4m3p7exo" path="res://Scripts/Human/player.gd" id="1_8unwl"]
+[ext_resource type="PackedScene" uid="uid://de8fp5a13ri8x" path="res://Characters/Human/Fast Run.fbx" id="2_850g3"]
+[ext_resource type="Script" uid="uid://uf4uoift0g1" path="res://Scripts/Human/fast_run2.gd" id="3_850g3"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_f6ss6"]
+radius = 0.45
+height = 1.3
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_mhv3j"]
+radius = 0.4
+height = 1.2
+
+[node name="Player" type="CharacterBody3D" unique_id=1789423804]
+floor_snap_length = 0.4
+script = ExtResource("1_8unwl")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=471034621]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
+shape = SubResource("CapsuleShape3D_f6ss6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=872560570]
+visible = false
+mesh = SubResource("CapsuleMesh_mhv3j")
+
+[node name="Fast Run" parent="." unique_id=1761502835 instance=ExtResource("2_850g3")]
+transform = Transform3D(155, 0, 0, 0, 155, 0, 0, 0, 155, 0, 0, 0)
+script = ExtResource("3_850g3")
+
+[node name="AnimationPlayer2" type="AnimationPlayer" parent="Fast Run" unique_id=1815170864]
+root_node = NodePath("../..")

@@ -1,0 +1,256 @@
+[gd_scene format=3 uid="uid://3p4m2wln3qs6"]
+
+[ext_resource type="PackedScene" uid="uid://dtlchmt4fr0yc" path="res://Characters/Human/player.tscn" id="1_idj7w"]
+[ext_resource type="Script" uid="uid://ciwhp3bcm8m1c" path="res://Scripts/Camera/gamecamera.gd" id="2_kln2b"]
+[ext_resource type="PackedScene" uid="uid://b3enkd41koda" path="res://Characters/Obstacles/Obstacles.tscn" id="3_kln2b"]
+[ext_resource type="PackedScene" uid="uid://btlqv65d407n3" path="res://Scenes/World1/ground_tile_01.tscn" id="4_gtile"]
+[ext_resource type="Script" path="res://Scripts/World/ground_recycler.gd" id="5_recycler"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_62ao2"]
+sky_top_color = Color(0.41960785, 0.45490196, 0.5019608, 1)
+sky_horizon_color = Color(0.7882353, 0.7882353, 0.7882353, 1)
+ground_bottom_color = Color(0.32156864, 0.3529412, 0.29411766, 1)
+ground_horizon_color = Color(0.40392157, 0.42745098, 0.36862746, 1)
+
+[sub_resource type="Sky" id="Sky_f6ss6"]
+sky_material = SubResource("ProceduralSkyMaterial_62ao2")
+
+[sub_resource type="Environment" id="Environment_mhv3j"]
+background_mode = 2
+sky = SubResource("Sky_f6ss6")
+fog_enabled = true
+fog_light_color = Color(0.6431373, 0.65882355, 0.627451, 1)
+fog_light_energy = 1.29
+fog_density = 0.0125
+
+[node name="Main" type="Node3D" unique_id=216867882]
+
+[node name="Ground" type="Node3D" parent="." unique_id=375773134 node_paths=PackedStringArray("player_path")]
+script = ExtResource("5_recycler")
+player_path = NodePath("../Player")
+
+[node name="GroundTile01_r0_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, 5.0)
+
+[node name="GroundTile01_r0_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, 5.0)
+
+[node name="GroundTile01_r0_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, 5.0)
+
+[node name="GroundTile01_r1_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, 2.5)
+
+[node name="GroundTile01_r1_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, 2.5)
+
+[node name="GroundTile01_r1_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, 2.5)
+
+[node name="GroundTile01_r2_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, 0.0)
+
+[node name="GroundTile01_r2_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, 0.0)
+
+[node name="GroundTile01_r2_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, 0.0)
+
+[node name="GroundTile01_r3_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -2.5)
+
+[node name="GroundTile01_r3_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -2.5)
+
+[node name="GroundTile01_r3_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -2.5)
+
+[node name="GroundTile01_r4_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -5.0)
+
+[node name="GroundTile01_r4_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -5.0)
+
+[node name="GroundTile01_r4_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -5.0)
+
+[node name="GroundTile01_r5_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -7.5)
+
+[node name="GroundTile01_r5_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -7.5)
+
+[node name="GroundTile01_r5_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -7.5)
+
+[node name="GroundTile01_r6_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -10.0)
+
+[node name="GroundTile01_r6_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -10.0)
+
+[node name="GroundTile01_r6_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -10.0)
+
+[node name="GroundTile01_r7_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -12.5)
+
+[node name="GroundTile01_r7_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -12.5)
+
+[node name="GroundTile01_r7_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -12.5)
+
+[node name="GroundTile01_r8_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -15.0)
+
+[node name="GroundTile01_r8_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -15.0)
+
+[node name="GroundTile01_r8_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -15.0)
+
+[node name="GroundTile01_r9_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -17.5)
+
+[node name="GroundTile01_r9_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -17.5)
+
+[node name="GroundTile01_r9_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -17.5)
+
+[node name="GroundTile01_r10_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -20.0)
+
+[node name="GroundTile01_r10_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -20.0)
+
+[node name="GroundTile01_r10_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -20.0)
+
+[node name="GroundTile01_r11_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -22.5)
+
+[node name="GroundTile01_r11_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -22.5)
+
+[node name="GroundTile01_r11_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -22.5)
+
+[node name="GroundTile01_r12_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -25.0)
+
+[node name="GroundTile01_r12_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -25.0)
+
+[node name="GroundTile01_r12_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -25.0)
+
+[node name="GroundTile01_r13_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -27.5)
+
+[node name="GroundTile01_r13_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -27.5)
+
+[node name="GroundTile01_r13_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -27.5)
+
+[node name="GroundTile01_r14_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -30.0)
+
+[node name="GroundTile01_r14_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -30.0)
+
+[node name="GroundTile01_r14_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -30.0)
+
+[node name="GroundTile01_r15_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -32.5)
+
+[node name="GroundTile01_r15_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -32.5)
+
+[node name="GroundTile01_r15_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -32.5)
+
+[node name="GroundTile01_r16_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -35.0)
+
+[node name="GroundTile01_r16_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -35.0)
+
+[node name="GroundTile01_r16_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -35.0)
+
+[node name="GroundTile01_r17_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -37.5)
+
+[node name="GroundTile01_r17_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -37.5)
+
+[node name="GroundTile01_r17_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -37.5)
+
+[node name="GroundTile01_r18_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -40.0)
+
+[node name="GroundTile01_r18_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -40.0)
+
+[node name="GroundTile01_r18_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -40.0)
+
+[node name="GroundTile01_r19_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -42.5)
+
+[node name="GroundTile01_r19_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -42.5)
+
+[node name="GroundTile01_r19_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -42.5)
+
+[node name="GroundTile01_r20_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -45.0)
+
+[node name="GroundTile01_r20_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -45.0)
+
+[node name="GroundTile01_r20_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -45.0)
+
+[node name="GroundTile01_r21_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -47.5)
+
+[node name="GroundTile01_r21_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -47.5)
+
+[node name="GroundTile01_r21_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -47.5)
+
+[node name="GroundTile01_r22_c0" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -6.0, 0, -50.0)
+
+[node name="GroundTile01_r22_c1" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0.0, 0, -50.0)
+
+[node name="GroundTile01_r22_c2" parent="Ground" instance=ExtResource("4_gtile")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 6.0, 0, -50.0)
+
+[node name="Player" parent="." unique_id=1789423804 instance=ExtResource("1_idj7w")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.5, 0)
+
+[node name="GameCamera" type="Camera3D" parent="." unique_id=81780752 node_paths=PackedStringArray("player")]
+transform = Transform3D(1, -4.5253355e-08, 1.6888782e-07, 0, 0.96592575, 0.258819, -1.7484555e-07, -0.258819, 0.96592575, -5.9604645e-08, 3, 6)
+current = true
+script = ExtResource("2_kln2b")
+player = NodePath("../Player")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1157147265]
+transform = Transform3D(0.7071068, -0.5, 0.5, 0, 0.7071068, 0.7071068, -0.7071068, -0.5, 0.5, 0, 2, 4)
+light_energy = 3.0
+
+[node name="Obstacles" parent="." unique_id=1437648783 instance=ExtResource("3_kln2b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -20)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=891998645]
+environment = SubResource("Environment_mhv3j")

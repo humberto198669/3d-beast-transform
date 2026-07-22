@@ -1,0 +1,64 @@
+[gd_scene load_steps=4 format=3 uid="uid://bqk9m2x4c7t1a"]
+
+[ext_resource type="Texture2D" uid="uid://b6kdvng2vljpm" path="res://Image/Start/fondo_menu.png" id="1_bg"]
+[ext_resource type="Script" path="res://Scripts/UI/menu_screen.gd" id="2_script"]
+[ext_resource type="PackedScene" uid="uid://dqk3n0x7b2gws" path="res://Scenes/UI/Boton3D.tscn" id="3_boton3d"]
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_script")
+
+[node name="Bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.06, 1)
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_bg")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StoryButton" parent="." instance=ExtResource("3_boton3d")]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = -190.0
+offset_right = 140.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+label_text = "MODO HISTORIA"
+
+[node name="InfiniteButton" parent="." instance=ExtResource("3_boton3d")]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -140.0
+offset_top = 90.0
+offset_right = 140.0
+offset_bottom = 350.0
+grow_horizontal = 2
+grow_vertical = 2
+label_text = "MODO INFINITO"
