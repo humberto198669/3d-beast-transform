@@ -57,16 +57,17 @@ show_percentage = false
 
 [node name="EnterButton" parent="." unique_id=1364906081 instance=ExtResource("3_boton3d")]
 visible = false
+custom_minimum_size = Vector2(330, 205)
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -140.0
-offset_top = -270.0
-offset_right = 140.0
-offset_bottom = -10.0
+offset_left = -165.0
+offset_top = -225.0
+offset_right = 165.0
+offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 0
 label_text = "ENTRAR"

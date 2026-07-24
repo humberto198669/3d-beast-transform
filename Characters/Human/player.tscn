@@ -24,9 +24,11 @@ shape = SubResource("CapsuleShape3D_f6ss6")
 visible = false
 mesh = SubResource("CapsuleMesh_mhv3j")
 
-[node name="Fast Run" parent="." unique_id=1761502835 instance=ExtResource("2_850g3")]
+[node name="VisualPivot" type="Node3D" parent="."]
+
+[node name="Fast Run" parent="VisualPivot" unique_id=1761502835 instance=ExtResource("2_850g3")]
 transform = Transform3D(155, 0, 0, 0, 155, 0, 0, 0, 155, 0, 0, 0)
 script = ExtResource("3_850g3")
 
-[node name="AnimationPlayer2" type="AnimationPlayer" parent="Fast Run" unique_id=1815170864]
-root_node = NodePath("../..")
+[node name="AnimationPlayer2" type="AnimationPlayer" parent="VisualPivot/Fast Run" unique_id=1815170864]
+root_node = NodePath("../../..")

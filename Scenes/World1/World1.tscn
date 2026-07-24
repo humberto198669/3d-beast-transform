@@ -1,16 +1,17 @@
-[gd_scene load_steps=12 format=3 uid="uid://8a00vmpjepds"]
+[gd_scene load_steps=20 format=3 uid="uid://8a00vmpjepds"]
 
 [ext_resource type="Script" path="res://Scripts/World/world_1.gd" id="1_world"]
 [ext_resource type="PackedScene" uid="uid://dtlchmt4fr0yc" path="res://Characters/Human/player.tscn" id="2_player"]
 [ext_resource type="Script" uid="uid://ciwhp3bcm8m1c" path="res://Scripts/Camera/gamecamera.gd" id="3_camera"]
 [ext_resource type="Texture2D" path="res://Assets/UI/Icons/coin_icon.png" id="4_coin_icon"]
 [ext_resource type="Texture2D" path="res://Assets/UI/Icons/ubicacion.png" id="5_location_icon"]
+[ext_resource type="PackedScene" path="res://Assets/Models/Enviroment/world1/cordillera_nieve.glb" id="6_cordillera"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
-sky_top_color = Color(0.08, 0.28, 0.48, 1)
-sky_horizon_color = Color(0.55, 0.75, 0.88, 1)
-ground_bottom_color = Color(0.08, 0.13, 0.14, 1)
-ground_horizon_color = Color(0.34, 0.45, 0.44, 1)
+sky_top_color = Color(0.16, 0.43, 0.72, 1)
+sky_horizon_color = Color(0.43, 0.65, 0.82, 1)
+ground_bottom_color = Color(0.18, 0.3, 0.4, 1)
+ground_horizon_color = Color(0.4, 0.58, 0.72, 1)
 
 [sub_resource type="Sky" id="Sky"]
 sky_material = SubResource("SkyMaterial")
@@ -18,15 +19,19 @@ sky_material = SubResource("SkyMaterial")
 [sub_resource type="Environment" id="Environment"]
 background_mode = 2
 sky = SubResource("Sky")
-fog_enabled = true
-fog_light_color = Color(0.55, 0.72, 0.82, 1)
-fog_density = 0.013
-fog_depth_begin = 45.0
-fog_depth_end = 140.0
+fog_enabled = false
+fog_light_color = Color(0.5, 0.67, 0.78, 1)
+fog_density = 0.01
+fog_depth_begin = 48.0
+fog_depth_end = 150.0
 ambient_light_source = 3
-ambient_light_color = Color(0.55, 0.7, 0.86, 1)
-ambient_light_energy = 1.1
-tonemap_exposure = 1.2
+ambient_light_color = Color(0.44, 0.58, 0.74, 1)
+ambient_light_energy = 0.82
+tonemap_exposure = 0.88
+adjustment_enabled = true
+adjustment_brightness = 0.99
+adjustment_contrast = 1.04
+adjustment_saturation = 0.94
 
 [sub_resource type="StyleBoxFlat" id="HudPanel"]
 bg_color = Color(0.025, 0.055, 0.08, 0.78)
@@ -58,8 +63,86 @@ content_margin_top = 4.0
 content_margin_right = 12.0
 content_margin_bottom = 4.0
 
+[sub_resource type="StyleBoxFlat" id="GemPanel"]
+bg_color = Color(0.42, 1, 0.7, 0.22)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.72, 1, 0.84, 0.78)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="GemBarFill"]
+bg_color = Color(0.52, 1, 0.68, 0.78)
+corner_radius_top_left = 0
+corner_radius_top_right = 0
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="Shader" id="SideSnowShader"]
+code = "shader_type spatial;\nrender_mode unshaded;\n\nfloat hash(vec2 p) {\n    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);\n}\n\nfloat noise(vec2 p) {\n    vec2 i = floor(p);\n    vec2 f = fract(p);\n    f = f * f * (3.0 - 2.0 * f);\n    return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);\n}\n\nvoid fragment() {\n    float n = noise(UV * vec2(18.0, 80.0));\n    vec3 frozen_blue = vec3(0.26, 0.46, 0.62);\n    vec3 snow_blue = vec3(0.4, 0.61, 0.75);\n    ALBEDO = mix(frozen_blue, snow_blue, 0.32 + n * 0.24);\n}\n"
+
+[sub_resource type="ShaderMaterial" id="SideSnowMaterial"]
+shader = SubResource("SideSnowShader")
+
+[sub_resource type="PlaneMesh" id="SideSnowMesh"]
+material = SubResource("SideSnowMaterial")
+size = Vector2(32, 1200)
+
+[sub_resource type="StandardMaterial3D" id="CloudMaterial"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.94, 0.98, 1, 0.72)
+
+[sub_resource type="SphereMesh" id="CloudMesh"]
+material = SubResource("CloudMaterial")
+radius = 1.0
+height = 2.0
+radial_segments = 12
+rings = 6
+
 [node name="World1" type="Node3D"]
 script = ExtResource("1_world")
+
+[node name="SideSnowBase" type="MeshInstance3D" parent="."]
+visible = false
+position = Vector3(0, 0.2, -500)
+cast_shadow = 0
+mesh = SubResource("SideSnowMesh")
+
+[node name="HorizonBackdrop" type="Node3D" parent="."]
+position = Vector3(0, 0, -650)
+
+[node name="CordilleraNieve" parent="HorizonBackdrop" instance=ExtResource("6_cordillera")]
+position = Vector3(0, 60, 0)
+scale = Vector3(125, 210, 70)
+
+[node name="CloudLeft" type="MeshInstance3D" parent="HorizonBackdrop"]
+position = Vector3(-76, 126, 80)
+scale = Vector3(20, 5, 3)
+cast_shadow = 0
+mesh = SubResource("CloudMesh")
+
+[node name="CloudLeftSmall" type="MeshInstance3D" parent="HorizonBackdrop"]
+position = Vector3(-55, 129, 80)
+scale = Vector3(13, 7, 3)
+cast_shadow = 0
+mesh = SubResource("CloudMesh")
+
+[node name="CloudRight" type="MeshInstance3D" parent="HorizonBackdrop"]
+position = Vector3(82, 143, 65)
+scale = Vector3(24, 6, 3)
+cast_shadow = 0
+mesh = SubResource("CloudMesh")
+
+[node name="CloudRightSmall" type="MeshInstance3D" parent="HorizonBackdrop"]
+position = Vector3(108, 146, 65)
+scale = Vector3(14, 8, 3)
+cast_shadow = 0
+mesh = SubResource("CloudMesh")
 
 [node name="Ground" type="Node3D" parent="."]
 
@@ -70,17 +153,20 @@ transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.5, 0)
 lane_distance = 2.7
 
 [node name="GameCamera" type="Camera3D" parent="." node_paths=PackedStringArray("player")]
-transform = Transform3D(1, -3.0e-08, 1.2e-07, 0, 0.978148, 0.207912, -1.25e-07, -0.207912, 0.978148, 0, 2.5, 4.8)
+position = Vector3(0, 3.35, 7.2)
+rotation_degrees = Vector3(-14, 0, 0)
 current = true
-fov = 58.0
+fov = 62.0
 script = ExtResource("3_camera")
 player = NodePath("../Player")
-horizontal_follow = 0.8
+height_offset = 3.35
+distance_offset = 7.2
+horizontal_follow = 0.7
 
 [node name="Sun" type="DirectionalLight3D" parent="."]
 rotation_degrees = Vector3(-52, -28, 0)
-light_color = Color(0.85, 0.94, 1, 1)
-light_energy = 3.0
+light_color = Color(0.9, 0.95, 1, 1)
+light_energy = 2.05
 shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -164,6 +250,29 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 28
+
+[node name="GemMeter" type="Panel" parent="HUD"]
+offset_left = 28.0
+offset_top = 132.0
+offset_right = 88.0
+offset_bottom = 290.0
+clip_contents = true
+theme_override_styles/panel = SubResource("GemPanel")
+
+[node name="Fill" type="Panel" parent="HUD/GemMeter"]
+layout_mode = 1
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 156.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("GemBarFill")
 
 [node name="Hint" type="Label" parent="HUD"]
 anchors_preset = 12

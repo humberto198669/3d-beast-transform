@@ -1,0 +1,87 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Texture2D" path="res://Assets/UI/MainMenu/background_menu.png.png" id="1_bg"]
+[ext_resource type="Texture2D" path="res://Assets/UI/MainMenu/Bottom/persons_icon.png" id="2_icon"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/BottomNavigation.tscn" id="3_nav"]
+[ext_resource type="FontFile" path="res://Assets/Fonts/Poppins-Bold.ttf" id="4_font"]
+
+[sub_resource type="StyleBoxFlat" id="ContentStyle"]
+bg_color = Color(0.015, 0.055, 0.045, 0.9)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.45, 1, 0.58, 0.82)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+
+[node name="CharactersMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0.025, 0.02, 0.42)
+
+[node name="Content" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 44.0
+offset_top = 90.0
+offset_right = 496.0
+offset_bottom = 735.0
+theme_override_styles/panel = SubResource("ContentStyle")
+
+[node name="Layout" type="VBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Content/Layout"]
+custom_minimum_size = Vector2(250, 250)
+layout_mode = 2
+texture = ExtResource("2_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="Content/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 1, 0.54, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 32
+text = "PERSONAJES"
+horizontal_alignment = 1
+
+[node name="Message" type="Label" parent="Content/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.98, 0.9, 1)
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 19
+text = "PRÓXIMAMENTE PODRÁS\nDESBLOQUEAR NUEVOS HÉROES"
+horizontal_alignment = 1
+
+[node name="BottomNavigation" parent="." instance=ExtResource("3_nav")]
+layout_mode = 1
+current_section = "characters"

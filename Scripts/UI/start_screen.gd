@@ -35,6 +35,12 @@ func _on_loading_finished():
 	enter_button.visible = true
 	enter_button.disabled = false
 	progress_bar.visible = false
+	enter_button.modulate.a = 0.0
+	enter_button.scale = Vector2(0.82, 0.82)
+	var reveal_tween: Tween = create_tween()
+	reveal_tween.set_parallel(true)
+	reveal_tween.tween_property(enter_button, "modulate:a", 1.0, 0.28)
+	reveal_tween.tween_property(enter_button, "scale", Vector2.ONE, 0.42).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func _on_enter_pressed():
-	get_tree().change_scene_to_file(next_scene_path)
+	SceneTransition.change_scene(next_scene_path)

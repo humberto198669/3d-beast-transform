@@ -11,6 +11,9 @@ extends Button
 			_apply_label()
 
 @onready var label: Label = $Label
+@onready var text_depth: Label = $TextDepth
+
+var scale_tween: Tween
 
 func _ready():
 	pivot_offset = size / 2.0
@@ -23,15 +26,24 @@ func _ready():
 func _apply_label():
 	if label:
 		label.text = label_text
+	if text_depth:
+		text_depth.text = label_text
+
+func _animate_scale(target_scale: Vector2, duration: float) -> void:
+	if scale_tween and scale_tween.is_valid():
+		scale_tween.kill()
+	scale_tween = create_tween()
+	scale_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	scale_tween.tween_property(self, "scale", target_scale, duration)
 
 func _on_hover():
-	scale = Vector2(1.05, 1.05)
+	_animate_scale(Vector2(1.045, 1.045), 0.16)
 
 func _on_unhover():
-	scale = Vector2(1.0, 1.0)
+	_animate_scale(Vector2.ONE, 0.18)
 
 func _on_press():
-	scale = Vector2(0.95, 0.95)
+	_animate_scale(Vector2(0.94, 0.94), 0.08)
 
 func _on_release():
-	scale = Vector2(1.05, 1.05) if is_hovered() else Vector2.ONE
+	_animate_scale(Vector2(1.045, 1.045) if is_hovered() else Vector2.ONE, 0.14)

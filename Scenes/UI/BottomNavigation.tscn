@@ -1,0 +1,298 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/bottom_navigation.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://Assets/UI/MainMenu/Bottom/bottom_navigation_frame.png" id="2_frame"]
+[ext_resource type="Texture2D" path="res://Assets/UI/MainMenu/Bottom/missions_icon.png" id="3_missions"]
+[ext_resource type="Texture2D" path="res://Assets/UI/MainMenu/Bottom/persons_icon.png" id="4_persons"]
+[ext_resource type="Texture2D" path="res://Assets/UI/MainMenu/Bottom/start_icon.png" id="5_start"]
+[ext_resource type="Texture2D" path="res://Assets/UI/MainMenu/Bottom/adjust_icon.png" id="6_adjust"]
+[ext_resource type="Texture2D" path="res://Assets/UI/MainMenu/Bottom/store_icon.png" id="7_store"]
+[ext_resource type="FontFile" path="res://Assets/Fonts/Poppins-Bold.ttf" id="8_font"]
+
+[sub_resource type="Shader" id="CheckerMaskShader"]
+code = "shader_type canvas_item;\nvoid fragment() {\n    vec4 color = texture(TEXTURE, UV);\n    float high = max(color.r, max(color.g, color.b));\n    float low = min(color.r, min(color.g, color.b));\n    float chroma = high - low;\n    float brightness = dot(color.rgb, vec3(0.299, 0.587, 0.114));\n    if (color.a > 0.98 && brightness > 0.72 && chroma < 0.10) {\n        color.a = 0.0;\n    }\n    COLOR = color;\n}\n"
+
+[sub_resource type="ShaderMaterial" id="CheckerMaskMaterial"]
+shader = SubResource("CheckerMaskShader")
+
+[sub_resource type="StyleBoxFlat" id="SelectedStyle"]
+bg_color = Color(0.35, 1, 0.42, 0.09)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.52, 1, 0.62, 0.42)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0.1, 0.8, 0.25, 0.18)
+shadow_size = 3
+
+[sub_resource type="StyleBoxFlat" id="TooltipStyle"]
+bg_color = Color(0.015, 0.06, 0.045, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5, 1, 0.62, 0.9)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="BottomNavigation" type="Control"]
+layout_mode = 3
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -175.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_script")
+
+[node name="Frame" type="TextureRect" parent="."]
+material = SubResource("CheckerMaskMaterial")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_frame")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="Missions" type="TextureButton" parent="Frame"]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 18.0
+offset_right = 111.0
+offset_bottom = 164.0
+texture_normal = ExtResource("3_missions")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Selection" type="Panel" parent="Frame/Missions"]
+show_behind_parent = true
+layout_mode = 0
+offset_left = 8.0
+offset_top = 18.0
+offset_right = 90.0
+offset_bottom = 112.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectedStyle")
+
+[node name="Label" type="Label" parent="Frame/Missions"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -31.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.95)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 12
+text = "MISIONES"
+horizontal_alignment = 1
+
+[node name="Persons" type="TextureButton" parent="Frame"]
+layout_mode = 0
+offset_left = 117.0
+offset_top = 18.0
+offset_right = 215.0
+offset_bottom = 164.0
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Selection" type="Panel" parent="Frame/Persons"]
+show_behind_parent = true
+layout_mode = 0
+offset_left = 8.0
+offset_top = 18.0
+offset_right = 90.0
+offset_bottom = 112.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectedStyle")
+
+[node name="Icon" type="TextureRect" parent="Frame/Persons"]
+material = SubResource("CheckerMaskMaterial")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 3.0
+offset_right = -8.0
+offset_bottom = -13.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_persons")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Frame/Persons"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -31.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.95)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 12
+text = "PERSONAJES"
+horizontal_alignment = 1
+
+[node name="Start" type="TextureButton" parent="Frame"]
+layout_mode = 0
+offset_left = 221.0
+offset_top = 18.0
+offset_right = 319.0
+offset_bottom = 164.0
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Selection" type="Panel" parent="Frame/Start"]
+show_behind_parent = true
+layout_mode = 0
+offset_left = 8.0
+offset_top = 18.0
+offset_right = 90.0
+offset_bottom = 112.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectedStyle")
+
+[node name="Icon" type="TextureRect" parent="Frame/Start"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 6.0
+offset_bottom = 6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5_start")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Frame/Start"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -31.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.67, 1, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.95)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 13
+text = "INICIO"
+horizontal_alignment = 1
+
+[node name="Adjust" type="TextureButton" parent="Frame"]
+layout_mode = 0
+offset_left = 325.0
+offset_top = 18.0
+offset_right = 423.0
+offset_bottom = 164.0
+texture_normal = ExtResource("6_adjust")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Selection" type="Panel" parent="Frame/Adjust"]
+show_behind_parent = true
+layout_mode = 0
+offset_left = 8.0
+offset_top = 18.0
+offset_right = 90.0
+offset_bottom = 112.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectedStyle")
+
+[node name="Label" type="Label" parent="Frame/Adjust"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -31.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.95)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 12
+text = "AJUSTES"
+horizontal_alignment = 1
+
+[node name="Store" type="TextureButton" parent="Frame"]
+layout_mode = 0
+offset_left = 429.0
+offset_top = 18.0
+offset_right = 527.0
+offset_bottom = 164.0
+texture_normal = ExtResource("7_store")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Selection" type="Panel" parent="Frame/Store"]
+show_behind_parent = true
+layout_mode = 0
+offset_left = 8.0
+offset_top = 18.0
+offset_right = 90.0
+offset_bottom = 112.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SelectedStyle")
+
+[node name="Label" type="Label" parent="Frame/Store"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -31.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.95)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 12
+text = "TIENDA"
+horizontal_alignment = 1
+
+[node name="Tooltip" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 55.0
+offset_top = -62.0
+offset_right = 485.0
+offset_bottom = -10.0
+theme_override_styles/panel = SubResource("TooltipStyle")
+
+[node name="Text" type="Label" parent="Tooltip"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78, 1, 0.68, 1)
+theme_override_fonts/font = ExtResource("8_font")
+theme_override_font_sizes/font_size = 14
+text = "MENSAJE"
+horizontal_alignment = 1
+vertical_alignment = 1

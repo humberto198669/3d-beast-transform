@@ -1,8 +1,8 @@
 extends Camera3D
 
 @export var player: Node3D
-@export var height_offset := 2.5
-@export var distance_offset := 4.8
+@export var height_offset := 3.35
+@export var distance_offset := 7.2
 @export var horizontal_follow := 0.55
 
 func _process(_delta):

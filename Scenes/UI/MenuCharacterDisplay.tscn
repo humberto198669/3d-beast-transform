@@ -1,0 +1,94 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/menu_character_display.gd" id="1_script"]
+
+[sub_resource type="Environment" id="CharacterEnvironment"]
+background_mode = 0
+ambient_light_source = 3
+ambient_light_color = Color(0.78, 0.86, 0.82, 1)
+ambient_light_energy = 0.82
+reflected_light_source = 2
+tonemap_mode = 2
+
+[sub_resource type="Shader" id="ContactShadowShader"]
+code = "shader_type spatial;\nrender_mode unshaded, cull_disabled, depth_draw_never;\nvoid fragment() {\n    vec2 centered = (UV - vec2(0.5)) * vec2(2.0);\n    float distance_from_center = length(centered);\n    float softness = 1.0 - smoothstep(0.16, 1.0, distance_from_center);\n    ALBEDO = vec3(0.055, 0.038, 0.018);\n    ALPHA = softness * 0.52;\n}\n"
+
+[sub_resource type="ShaderMaterial" id="ContactShadowMaterial"]
+render_priority = -1
+shader = SubResource("ContactShadowShader")
+
+[sub_resource type="QuadMesh" id="ContactShadowMesh"]
+material = SubResource("ContactShadowMaterial")
+size = Vector2(0.82, 0.14)
+
+[sub_resource type="Shader" id="GroundShadowShader"]
+code = "shader_type spatial;\nrender_mode unshaded, cull_disabled, depth_draw_never;\nvoid fragment() {\n    vec2 centered = (UV - vec2(0.5)) * vec2(2.0);\n    float distance_from_center = length(centered);\n    float softness = 1.0 - smoothstep(0.05, 1.0, distance_from_center);\n    ALBEDO = vec3(0.07, 0.045, 0.02);\n    ALPHA = softness * 0.25;\n}\n"
+
+[sub_resource type="ShaderMaterial" id="GroundShadowMaterial"]
+render_priority = -2
+shader = SubResource("GroundShadowShader")
+
+[sub_resource type="QuadMesh" id="GroundShadowMesh"]
+material = SubResource("GroundShadowMaterial")
+size = Vector2(1.38, 0.3)
+
+[node name="MenuCharacterDisplay" type="SubViewportContainer"]
+custom_minimum_size = Vector2(230, 300)
+mouse_filter = 2
+stretch = true
+script = ExtResource("1_script")
+
+[node name="Viewport" type="SubViewport" parent="."]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(230, 300)
+render_target_update_mode = 4
+
+[node name="ProjectedShadowLayer" type="CanvasLayer" parent="Viewport"]
+layer = -1
+
+[node name="SoftSilhouette" type="Polygon2D" parent="Viewport/ProjectedShadowLayer"]
+polygon = PackedVector2Array(99, 294, 103, 275, 90, 256, 75, 246, 66, 230, 70, 216, 82, 215, 92, 231, 105, 238, 105, 225, 101, 211, 106, 198, 119, 194, 131, 202, 134, 215, 128, 226, 139, 244, 137, 261, 126, 278, 127, 294)
+color = Color(0.075, 0.045, 0.018, 0.12)
+antialiased = true
+
+[node name="CoreSilhouette" type="Polygon2D" parent="Viewport/ProjectedShadowLayer"]
+polygon = PackedVector2Array(103, 294, 107, 276, 96, 257, 82, 247, 75, 232, 78, 222, 85, 222, 94, 235, 109, 243, 111, 226, 107, 212, 111, 203, 119, 201, 127, 206, 129, 215, 123, 225, 134, 245, 132, 259, 122, 276, 122, 294)
+color = Color(0.055, 0.032, 0.012, 0.2)
+antialiased = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Viewport"]
+environment = SubResource("CharacterEnvironment")
+
+[node name="Camera3D" type="Camera3D" parent="Viewport"]
+position = Vector3(0, 1.05, 4)
+projection = 1
+size = 2.14
+near = 0.05
+far = 20.0
+
+[node name="KeyLight" type="DirectionalLight3D" parent="Viewport"]
+rotation_degrees = Vector3(-35, -28, 0)
+light_color = Color(1, 0.84, 0.58, 1)
+light_energy = 1.18
+
+[node name="FillLight" type="DirectionalLight3D" parent="Viewport"]
+rotation_degrees = Vector3(-20, 145, 0)
+light_color = Color(0.52, 0.82, 1, 1)
+light_energy = 0.62
+
+[node name="WarmRimLight" type="DirectionalLight3D" parent="Viewport"]
+rotation_degrees = Vector3(-24, 118, 8)
+light_color = Color(1, 0.58, 0.26, 1)
+light_energy = 0.48
+
+[node name="GroundShadow" type="MeshInstance3D" parent="Viewport"]
+position = Vector3(0.1, 0.065, -0.18)
+mesh = SubResource("GroundShadowMesh")
+
+[node name="ContactShadow" type="MeshInstance3D" parent="Viewport"]
+position = Vector3(0, 0.058, -0.1)
+mesh = SubResource("ContactShadowMesh")
+
+[node name="CharacterPivot" type="Node3D" parent="Viewport"]
+position = Vector3(0, -0.015, 0)
