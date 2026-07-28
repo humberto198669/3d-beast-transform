@@ -27,6 +27,10 @@ window/size/viewport_height=960
 window/stretch/mode="canvas_items"
 window/handheld/orientation="portrait"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/meshy-godot-plugin/plugin.cfg")
+
 [gui]
 
 theme/custom="res://Assets/UI/GameTheme.tres"

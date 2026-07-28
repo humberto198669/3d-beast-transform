@@ -11,11 +11,7 @@ const CRASH_BEAST_SMOKE := preload("res://Assets/Effects/Crash/impact_beast_smok
 const CRASH_BEAST_FLASH := preload("res://Assets/Effects/Crash/impact_beast_flash.png")
 const CRASH_BEAST_PAW := preload("res://Assets/Effects/Crash/impact_beast_paw.png")
 const BARREL_MODEL := preload("res://Assets/Models/Obstacles/world1/barril.glb")
-const ROCK_MODEL := preload("res://Assets/Models/Obstacles/world1/roca.glb")
-const STUMP_MODEL := preload("res://Assets/Models/Obstacles/world1/tocon.glb")
 const LOG_MODEL := preload("res://Assets/Models/Obstacles/world1/tronco.glb")
-const PINE_MODEL := preload("res://Assets/Models/Obstacles/world1/Pino01.glb")
-const DRY_TREE_MODEL := preload("res://Assets/Models/Obstacles/world1/Seco01.glb")
 const SIGN_MODEL := preload("res://Assets/Models/Obstacles/world1/signal.glb")
 const MAMMOTH_MODEL := preload("res://Assets/Models/Obstacles/world1/mamut.glb")
 const GIANT_TRAIN_MODEL := preload("res://Assets/Models/Obstacles/world1/otros/tren_gigante.glb")
@@ -24,9 +20,13 @@ const GIANT_PANEL_MODEL := preload("res://Assets/Models/Obstacles/world1/otros/p
 const GATE_MODEL := preload("res://Assets/Models/Obstacles/world1/otros/porton.glb")
 const INTERMEDIATE_JUMP_MODEL := preload("res://Assets/Models/Obstacles/world1/otros/salton_intermedio.glb")
 const ICE_BRIDGE_MODEL := preload("res://Assets/Models/Obstacles/world1/otros/puente_hielo.glb")
-const SIDE_FOREST_MODULE_01 := preload("res://Assets/Models/Enviroment/world1/Modular/bosque_lateral_recto_01.glb")
-const SIDE_FOREST_MODULE_02 := preload("res://Assets/Models/Enviroment/world1/Modular/bosque_lateral_recto_02.glb")
-const SIDE_FOREST_RIGHT_MODULE_01 := preload("res://Assets/Models/Enviroment/world1/Modular/bosque_lateral_recto_derecho_01.glb")
+const NEW_SIDE_BASE := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/base.glb")
+const NEW_SIDE_PINE := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/pino.glb")
+const NEW_SIDE_IGLOO := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/igloo.glb")
+const NEW_SIDE_HILLS := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/colinas.glb")
+const NEW_SIDE_COLORFUL := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/colorido.glb")
+const NEW_SIDE_ROCKS := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/piedras.glb")
+const SNOW_VOLCANO_MODEL := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/volcan_nieve.glb")
 
 const LANES := [-2.7, 0.0, 2.7]
 # Solo existen los tres carriles jugables. El paisaje modular comienza justo
@@ -34,8 +34,21 @@ const LANES := [-2.7, 0.0, 2.7]
 const TILE_COLUMNS := [-2.7, 0.0, 2.7]
 const LEVEL_LENGTH := 420.0
 const SIDE_MODULE_LENGTH := 42.0
-const SIDE_MODULE_COUNT := 12
-const SIDE_MODULE_LOOP_LENGTH := SIDE_MODULE_LENGTH * SIDE_MODULE_COUNT
+# Los modelos tienen extremos irregulares. Se solapan seis metros para que no
+# queden aberturas triangulares entre un paisaje y el siguiente.
+const SIDE_MODULE_SPACING := 36.0
+# La franja del horizonte pertenecía al cielo procedural, no al final del piso.
+# Dieciséis módulos cubren 576 m y evitan cargar decoración fuera de la cámara.
+const SIDE_MODULE_COUNT := 16
+const SIDE_MODULE_LOOP_LENGTH := SIDE_MODULE_SPACING * SIDE_MODULE_COUNT
+const SIDE_SCENARIO_MODULES := 9
+const SIDE_SCENARIO_COUNT := 5
+const VOLCANO_SPACING := 300.0
+const VOLCANO_CYCLE_LENGTH := VOLCANO_SPACING * 2.0
+const MOUNTAIN_APPROACH_DEPTH := 290.0
+const MOUNTAIN_APPROACH_SLOWNESS := 6000.0
+const SNOWFALL_INTERVAL := 20.0
+const SNOWFALL_DURATION := 10.0
 const GROUND_ROWS := 18
 const ROW_SPACING := 5.0
 const GROUND_SURFACE_Y := 0.38
@@ -63,6 +76,7 @@ const BEAST_SPEED := 42.0
 @onready var course: Node3D = $Course
 @onready var side_snow_base: MeshInstance3D = $SideSnowBase
 @onready var horizon_backdrop: Node3D = $HorizonBackdrop
+@onready var distant_mountain: Node3D = $HorizonBackdrop/CordilleraNieve
 @onready var distance_label: Label = $HUD/SafeArea/TopBar/Stats/Distance/Content/Value
 @onready var coins_label: Label = $HUD/SafeArea/TopBar/Stats/CoinCounter/Content/Amount
 @onready var gem_meter: Panel = $HUD/GemMeter
@@ -95,6 +109,9 @@ var bear_visual: Node3D
 var bear_left_visual: Node3D
 var bear_right_visual: Node3D
 var bear_jump_visual: Node3D
+var snow_volcanoes: Array[Node3D] = []
+var snowfall: GPUParticles3D
+var snowfall_elapsed := 0.0
 var bear_action_serial := 0
 var transformation_in_progress := false
 var beast_active := false
@@ -110,6 +127,8 @@ func _ready() -> void:
 	_prepare_bear_visual()
 	_build_ground()
 	_build_course()
+	_build_snow_volcano_cycle()
+	_prepare_snowfall()
 	_disable_horizon_shadows()
 	player.crashed.connect(_on_player_crashed)
 	player.beast_hit_mammoth.connect(_on_beast_hit_mammoth)
@@ -145,6 +164,96 @@ func _disable_horizon_shadows() -> void:
 		var geometry: GeometryInstance3D = geometry_node as GeometryInstance3D
 		if geometry != null:
 			geometry.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+func _build_snow_volcano_cycle() -> void:
+	# Dos volcanes separados 300 m: el cercano enmarca un costado y el siguiente
+	# ya se distingue en el lado contrario antes de que ocurra el recambio.
+	_add_snow_volcano(Vector3(-30.0, 0.0, -280.0), 0)
+	_add_snow_volcano(Vector3(30.0, 0.0, -580.0), 1)
+
+func _add_snow_volcano(at: Vector3, cycle_index: int) -> void:
+	var holder: Node3D = Node3D.new()
+	holder.name = "SnowVolcano%d" % cycle_index
+	holder.position = at
+	holder.set_meta("cycle_index", cycle_index)
+	course.add_child(holder)
+	var visual: Node3D = SNOW_VOLCANO_MODEL.instantiate() as Node3D
+	holder.add_child(visual)
+	var bounds: AABB = _calculate_visual_bounds(visual)
+	if bounds.size.x <= 0.001 or bounds.size.y <= 0.001 or bounds.size.z <= 0.001:
+		snow_volcanoes.append(holder)
+		return
+	var height_scale: float = 34.0 / bounds.size.y
+	var width_scale: float = 42.0 / maxf(bounds.size.x, bounds.size.z)
+	var volcano_scale: float = minf(height_scale, width_scale)
+	var angle: float = deg_to_rad(12.0 if cycle_index == 0 else -12.0)
+	visual.rotation.y = angle
+	visual.scale = Vector3.ONE * volcano_scale
+	var anchor: Vector3 = Vector3(
+		(bounds.position.x + bounds.size.x * 0.5) * volcano_scale,
+		bounds.position.y * volcano_scale,
+		(bounds.position.z + bounds.size.z * 0.5) * volcano_scale
+	)
+	visual.position = -anchor.rotated(Vector3.UP, angle)
+	_optimize_side_asset(visual)
+	snow_volcanoes.append(holder)
+
+func _update_snow_volcano_cycle() -> void:
+	for volcano: Node3D in snow_volcanoes:
+		if not is_instance_valid(volcano):
+			continue
+		if volcano.global_position.z > player.global_position.z + 85.0:
+			volcano.position.z -= VOLCANO_CYCLE_LENGTH
+
+func _update_distant_mountain(distance: float) -> void:
+	# Acercamiento asintótico: avanza durante toda la partida, cada vez más lento,
+	# sin alcanzar el límite ni reiniciarse de forma visible.
+	var approach_progress: float = 1.0 - exp(-distance / MOUNTAIN_APPROACH_SLOWNESS)
+	distant_mountain.position.z = MOUNTAIN_APPROACH_DEPTH * approach_progress
+
+func _prepare_snowfall() -> void:
+	snowfall = GPUParticles3D.new()
+	snowfall.name = "MountainSnowfall"
+	snowfall.amount = 180
+	snowfall.lifetime = 5.0
+	snowfall.randomness = 0.55
+	snowfall.local_coords = false
+	snowfall.emitting = false
+	snowfall.visibility_aabb = AABB(Vector3(-22.0, -15.0, -42.0), Vector3(44.0, 32.0, 84.0))
+
+	var particle_material: ParticleProcessMaterial = ParticleProcessMaterial.new()
+	particle_material.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	particle_material.emission_box_extents = Vector3(13.0, 1.0, 30.0)
+	particle_material.direction = Vector3(0.08, -1.0, 0.04)
+	particle_material.spread = 12.0
+	particle_material.gravity = Vector3(0.0, -1.7, 0.0)
+	particle_material.initial_velocity_min = 2.4
+	particle_material.initial_velocity_max = 4.2
+	particle_material.scale_min = 0.55
+	particle_material.scale_max = 1.35
+	snowfall.process_material = particle_material
+
+	var flake_material: StandardMaterial3D = StandardMaterial3D.new()
+	flake_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	flake_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	flake_material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	flake_material.albedo_color = Color(0.94, 0.98, 1.0, 0.88)
+	var flake_mesh: QuadMesh = QuadMesh.new()
+	flake_mesh.size = Vector2(0.11, 0.11)
+	flake_mesh.material = flake_material
+	snowfall.draw_pass_1 = flake_mesh
+	add_child(snowfall)
+
+func _update_snowfall(delta: float) -> void:
+	if snowfall == null:
+		return
+	snowfall_elapsed += delta
+	var should_snow: bool = snowfall_elapsed >= SNOWFALL_INTERVAL \
+		and fmod(snowfall_elapsed, SNOWFALL_INTERVAL) < SNOWFALL_DURATION
+	if snowfall.emitting != should_snow:
+		snowfall.emitting = should_snow
+	# El emisor acompaña al jugador, pero los copos emitidos quedan en el mundo.
+	snowfall.global_position = player.global_position + Vector3(0.0, 12.0, -20.0)
 
 func _prepare_bear_visual() -> void:
 	bear_visual = BEAR_MODEL.instantiate() as Node3D
@@ -400,13 +509,17 @@ func _process(_delta: float) -> void:
 		course_check_elapsed = 0.0
 		_recycle_course()
 	_update_mammoths(_delta)
+	_update_snow_volcano_cycle()
+	_update_snowfall(_delta)
 	_update_difficulty(_delta)
-	# Mantiene nieve visible hasta el horizonte, muy por delante de la cámara.
-	side_snow_base.position.z = player.position.z - 500.0
+	# El plano cubre varios kilómetros para que su borde quede siempre mucho más
+	# lejos que el horizonte visible de la cámara.
+	side_snow_base.position.z = player.position.z - 1800.0
 	# Fondo distante estable: acompana la carrera sin acercarse como un obstaculo.
 	horizon_backdrop.position.z = player.position.z - 650.0
 	var distance := maxf(0.0, -player.global_position.z)
 	distance_label.text = "%03d m" % int(distance)
+	_update_distant_mountain(distance)
 	_update_distance_difficulty(distance)
 
 func _update_difficulty(delta: float) -> void:
@@ -515,6 +628,10 @@ func _recycle_course() -> void:
 			# El paisaje lateral cubre mas distancia para ocultar su union final.
 			var recycle_length: float = SIDE_MODULE_LOOP_LENGTH if item.is_in_group("side_environment_module") else LEVEL_LENGTH
 			item.position.z -= recycle_length
+			if item.is_in_group("side_environment_module"):
+				var side_item: Node3D = item as Node3D
+				var next_serial: int = int(side_item.get_meta("scenario_serial", 0)) + SIDE_MODULE_COUNT
+				_configure_side_scenario(side_item, bool(side_item.get_meta("right_side", false)), next_serial)
 
 func _update_mammoths(delta: float) -> void:
 	mammoth_path_check_elapsed += delta
@@ -733,13 +850,8 @@ func _build_course() -> void:
 	for gem_distance: int in [78, 292, 372]:
 		_add_gem_in_safe_lane(gem_distance)
 
-	# Bosque lateral asimétrico: modelos, tamaños, giros y profundidad variables.
-	# Prueba visual: únicamente árboles Seco01 forman ambos costados.
-	for distance in range(12, 430, 18):
-		var left_z: float = -float(distance) + rng.randf_range(-2.5, 2.5)
-		var right_z: float = -float(distance) + rng.randf_range(-2.5, 2.5)
-		_add_decoration(DRY_TREE_MODEL, Vector3(-rng.randf_range(14.0, 16.0), 0.0, left_z), rng.randf_range(8.0, 11.0), rng.randf_range(0.0, 360.0))
-		_add_decoration(DRY_TREE_MODEL, Vector3(rng.randf_range(14.0, 16.0), 0.0, right_z), rng.randf_range(8.0, 11.0), rng.randf_range(0.0, 360.0))
+	# Las nuevas bases modulares ya contienen toda la ambientación lateral.
+	# Conservamos algunas señales pequeñas como puntos de orientación del camino.
 	var signal_distance: int = rng.randi_range(25, 38)
 	while signal_distance < 420:
 		var signal_side: float = -1.0 if rng.randi_range(0, 1) == 0 else 1.0
@@ -747,7 +859,7 @@ func _build_course() -> void:
 		signal_distance += rng.randi_range(34, 50)
 	# Franja continua de prueba: diez módulos por cada lado cubren todo el tramo.
 	for module_index: int in range(SIDE_MODULE_COUNT):
-		var module_z: float = -20.0 - float(module_index) * SIDE_MODULE_LENGTH
+		var module_z: float = -20.0 - float(module_index) * SIDE_MODULE_SPACING
 		_add_side_forest_module(Vector3(-6.1, 0.0, module_z), false, module_index)
 		_add_side_forest_module(Vector3(6.1, 0.0, module_z), true, module_index + 3)
 
@@ -808,15 +920,6 @@ func _remove_mammoth_corridor_lanes(candidates: Array[int], _distance: int) -> v
 	for mammoth_slot: Vector2i in mammoth_slots:
 		if abs(mammoth_slot.x - _distance) <= 30:
 			candidates.erase(mammoth_slot.y)
-
-func _decoration_scale(model: PackedScene) -> float:
-	if model == PINE_MODEL or model == DRY_TREE_MODEL:
-		return rng.randf_range(6.5, 10.5)
-	if model == ROCK_MODEL:
-		return rng.randf_range(1.8, 3.2)
-	if model == STUMP_MODEL:
-		return rng.randf_range(1.4, 2.4)
-	return rng.randf_range(1.0, 1.8)
 
 func _add_selected_obstacle(model: PackedScene, x: float, z: float) -> void:
 	if model == GIANT_PANEL_MODEL or model == GATE_MODEL:
@@ -972,13 +1075,7 @@ func _add_obstacle(model: PackedScene, x: float, z: float) -> void:
 	var visual := model.instantiate()
 	var visual_scale := 1.5
 	var obstacle_size := Vector3(1.4, 1.5, 1.4)
-	if model == ROCK_MODEL:
-		visual_scale = 1.8
-		obstacle_size = Vector3(1.8, 1.25, 1.55)
-	elif model == STUMP_MODEL:
-		visual_scale = 1.7
-		obstacle_size = Vector3(1.5, 0.9, 1.7)
-	elif model == LOG_MODEL:
+	if model == LOG_MODEL:
 		visual_scale = 1.25
 		visual.position.y = 0.65
 		obstacle_size = Vector3(2.5, 1.2, 1.8)
@@ -986,10 +1083,6 @@ func _add_obstacle(model: PackedScene, x: float, z: float) -> void:
 		visual_scale = 0.7
 		visual.position.y = 0.7
 		obstacle_size = Vector3(1.15, 1.4, 1.0)
-	elif model == PINE_MODEL:
-		visual_scale = 4.0
-		visual.position.y = -0.22
-		obstacle_size = Vector3(1.9, 4.0, 1.8)
 	visual.scale = Vector3.ONE * visual_scale
 	body.add_child(visual)
 	var collision := CollisionShape3D.new()
@@ -997,26 +1090,6 @@ func _add_obstacle(model: PackedScene, x: float, z: float) -> void:
 	shape.size = obstacle_size
 	collision.shape = shape
 	collision.position.y = obstacle_size.y * 0.5
-	body.add_child(collision)
-	course.add_child(body)
-
-func _add_giant_obstacle(model: PackedScene, x: float, z: float) -> void:
-	if _has_course_overlap(x, z, 10.0):
-		return
-	var body := StaticBody3D.new()
-	body.add_to_group("obstacle")
-	body.add_to_group("recyclable_course")
-	body.position = Vector3(x, GROUND_SURFACE_Y, z)
-	var visual := model.instantiate()
-	visual.scale = Vector3.ONE * (3.3 if model == BARREL_MODEL else 4.5)
-	if model == PINE_MODEL:
-		visual.position.y = -0.25
-	body.add_child(visual)
-	var collision := CollisionShape3D.new()
-	var shape := BoxShape3D.new()
-	shape.size = Vector3(2.35, 3.25, 2.35)
-	collision.shape = shape
-	collision.position.y = shape.size.y * 0.5
 	body.add_child(collision)
 	course.add_child(body)
 
@@ -1250,11 +1323,7 @@ func _create_gem_glow_texture() -> GradientTexture2D:
 func _add_decoration(model: PackedScene, at: Vector3, size: float, rotation_y := 0.0) -> void:
 	var visual := model.instantiate()
 	visual.add_to_group("recyclable_course")
-	var vertical_offset := 0.0
-	if model == SIGN_MODEL:
-		vertical_offset = size
-	elif model == DRY_TREE_MODEL:
-		vertical_offset = -0.16
+	var vertical_offset: float = size if model == SIGN_MODEL else 0.0
 	visual.position = at + Vector3.UP * (SIDE_ENVIRONMENT_Y + vertical_offset)
 	visual.scale = Vector3.ONE * size
 	visual.rotation_degrees.y = rotation_y
@@ -1267,55 +1336,109 @@ func _add_decoration(model: PackedScene, at: Vector3, size: float, rotation_y :=
 			geometry.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	course.add_child(visual)
 
-func _side_forest_model_for_variant(variant_index: int) -> PackedScene:
-	# El modulo 01 ocupa cuatro de cada seis espacios porque tiene el suelo mas
-	# claro. Los otros dos rompen la repeticion sin dominar el paisaje.
-	var selector: int = posmod(variant_index, 6)
-	if selector == 2:
-		return SIDE_FOREST_MODULE_02
-	if selector == 4:
-		return SIDE_FOREST_RIGHT_MODULE_01
-	return SIDE_FOREST_MODULE_01
-
 func _add_side_forest_module(at: Vector3, right_side: bool, variant_index: int) -> void:
 	var holder: Node3D = Node3D.new()
 	holder.add_to_group("recyclable_course")
 	holder.add_to_group("side_environment_module")
-	# Hundimos la base alta de cubos: solo queda un borde bajo visible, cercano a
-	# 10 px en el encuadre móvil, mientras árboles y montañas siguen sobresaliendo.
-	holder.position = at + Vector3.UP * (SIDE_ENVIRONMENT_Y - 1.38)
-	var side_model: PackedScene = _side_forest_model_for_variant(variant_index)
-	var visual: Node3D = side_model.instantiate() as Node3D
-	holder.add_child(visual)
+	var side_direction: float = 1.0 if right_side else -1.0
+	holder.position = Vector3(side_direction * 6.35, SIDE_ENVIRONMENT_Y - 0.48, at.z)
 	course.add_child(holder)
+	_configure_side_scenario(holder, right_side, variant_index)
+
+func _configure_side_scenario(holder: Node3D, right_side: bool, serial: int) -> void:
+	for child: Node in holder.get_children():
+		holder.remove_child(child)
+		child.queue_free()
+	holder.set_meta("right_side", right_side)
+	holder.set_meta("scenario_serial", serial)
+	# Tres franjas solapadas de base cubren desde el borde del carril hasta el
+	# fondo de la decoración. Así nunca queda visible el color azul del vacío.
+	var outward: float = 1.0 if right_side else -1.0
+	_add_fitted_side_base(holder, 0.0)
+	_add_fitted_side_base(holder, outward * 4.75)
+	# La última franja es más ancha y se extiende fuera del encuadre para que la
+	# perspectiva de la cámara nunca alcance a mostrar el vacío azul exterior.
+	_add_fitted_side_base(holder, outward * 16.75, 20.0)
+
+	# Cada familia dura nueve módulos (324 m). Las cinco familias completan
+	# 1.620 m antes de repetir su identidad visual.
+	var scenario_index: int = posmod(int(serial / SIDE_SCENARIO_MODULES), SIDE_SCENARIO_COUNT)
+	var variation: int = posmod(serial, SIDE_SCENARIO_MODULES)
+	var inner_x: float = -1.15 if right_side else 1.15
+	var outer_x: float = 1.0 if right_side else -1.0
+	var z_shift: float = float(variation - 4) * 0.7
+	var turn: float = 180.0 if right_side else 0.0
+
+	match scenario_index:
+		0: # Bosque de pinos
+			_add_side_prop(holder, NEW_SIDE_PINE, Vector3(inner_x, 0.0, -10.5 + z_shift), 7.2, 5.2, turn + float(variation * 17))
+			_add_side_prop(holder, NEW_SIDE_PINE, Vector3(outer_x, 0.0, 9.0 - z_shift), 6.0, 4.6, turn - float(variation * 13))
+			_add_side_prop(holder, NEW_SIDE_ROCKS, Vector3(inner_x * 0.7, 0.0, 1.0), 1.8, 4.0, turn)
+		1: # Aldea de hielo
+			_add_side_prop(holder, NEW_SIDE_IGLOO, Vector3(outer_x * 0.55, 0.0, -2.0 + z_shift), 3.6, 6.2, turn)
+			_add_side_prop(holder, NEW_SIDE_PINE, Vector3(inner_x, 0.0, 11.5), 6.3, 4.5, turn + 25.0)
+			_add_side_prop(holder, NEW_SIDE_COLORFUL, Vector3(inner_x, 1.0, -12.0), 2.0, 3.8, turn)
+		2: # Colinas congeladas
+			# Las colinas quedan como fondo bajo, no como una pared junto al carril.
+			_add_side_prop(holder, NEW_SIDE_HILLS, Vector3(outer_x * 3.35, 0.0, z_shift), 3.8, 7.0, turn)
+			_add_side_prop(holder, NEW_SIDE_ROCKS, Vector3(inner_x, 0.0, -12.0), 1.7, 3.8, turn + 20.0)
+			_add_side_prop(holder, NEW_SIDE_COLORFUL, Vector3(inner_x, 1.0, 12.5), 1.8, 3.4, turn)
+			_add_side_prop(holder, NEW_SIDE_PINE, Vector3(inner_x, 0.0, 2.0 - z_shift), 5.8, 4.2, turn + 18.0)
+		3: # Jardín de colores
+			_add_side_prop(holder, NEW_SIDE_COLORFUL, Vector3(inner_x, 1.0, -10.0 + z_shift), 2.7, 4.8, turn + float(variation * 19))
+			_add_side_prop(holder, NEW_SIDE_COLORFUL, Vector3(outer_x, 1.0, 9.5 - z_shift), 2.2, 4.2, turn - float(variation * 11))
+			_add_side_prop(holder, NEW_SIDE_PINE, Vector3(outer_x * 0.8, 0.0, 0.0), 6.5, 4.6, turn)
+		4: # Paisaje mixto
+			_add_side_prop(holder, NEW_SIDE_IGLOO, Vector3(inner_x * 0.65, 0.0, -10.0 + z_shift), 3.1, 5.3, turn)
+			_add_side_prop(holder, NEW_SIDE_HILLS, Vector3(outer_x * 3.2, 0.0, 9.0 - z_shift), 3.2, 5.5, turn)
+			_add_side_prop(holder, NEW_SIDE_ROCKS, Vector3(inner_x, 0.0, 2.5), 1.5, 3.5, turn)
+			_add_side_prop(holder, NEW_SIDE_COLORFUL, Vector3(inner_x, 1.0, 12.5), 1.7, 3.2, turn)
+
+func _add_fitted_side_base(holder: Node3D, local_x: float, target_width: float = 5.0) -> void:
+	var visual: Node3D = NEW_SIDE_BASE.instantiate() as Node3D
+	holder.add_child(visual)
 	var bounds: AABB = _calculate_visual_bounds(visual)
 	if bounds.size.x <= 0.001 or bounds.size.y <= 0.001 or bounds.size.z <= 0.001:
 		return
-	var long_axis: float = maxf(bounds.size.x, bounds.size.z)
-	var module_scale: float = minf(SIDE_MODULE_LENGTH / long_axis, 16.0 / bounds.size.y)
 	var angle: float = 0.0
+	var target_size: Vector3 = Vector3(target_width, 1.0, 40.0)
+	var fitted_scale: Vector3
 	if bounds.size.x >= bounds.size.z:
-		angle = deg_to_rad(-90.0 if right_side else 90.0)
-	elif right_side:
-		angle = deg_to_rad(180.0)
-	# Coloca el borde interior del módulo fuera de las cinco pistas. Como el nodo
-	# se centra por su caja, debemos sumar la mitad de su profundidad visible.
-	var world_width: float = (bounds.size.z if bounds.size.x >= bounds.size.z else bounds.size.x) * module_scale
-	var side_direction: float = 1.0 if right_side else -1.0
-	# La base rocosa empieza inmediatamente después de los tres carriles. Con el
-	# ancho actual de cada bloque, el borde exterior está cerca de X = +/-4.0.
-	# Un solape mínimo con el último bloque de pista elimina la rendija negra.
-	holder.position.x = side_direction * (3.9 + world_width * 0.5)
+		angle = deg_to_rad(90.0)
+		fitted_scale = Vector3(target_size.z / bounds.size.x, target_size.y / bounds.size.y, target_size.x / bounds.size.z)
+	else:
+		fitted_scale = Vector3(target_size.x / bounds.size.x, target_size.y / bounds.size.y, target_size.z / bounds.size.z)
 	visual.rotation.y = angle
-	visual.scale = Vector3.ONE * module_scale
+	visual.scale = fitted_scale
 	var scaled_anchor: Vector3 = Vector3(
-		(bounds.position.x + bounds.size.x * 0.5) * module_scale,
-		bounds.position.y * module_scale,
-		(bounds.position.z + bounds.size.z * 0.5) * module_scale
+		(bounds.position.x + bounds.size.x * 0.5) * fitted_scale.x,
+		bounds.position.y * fitted_scale.y,
+		(bounds.position.z + bounds.size.z * 0.5) * fitted_scale.z
 	)
-	visual.position = -scaled_anchor.rotated(Vector3.UP, angle)
-	# Es una escenografía inaccesible: eliminamos colisiones importadas y sombras
-	# dinámicas para evitar coste físico y gráfico innecesario en móviles.
+	visual.position = Vector3(local_x, 0.0, 0.0) - scaled_anchor.rotated(Vector3.UP, angle)
+	_optimize_side_asset(visual)
+
+func _add_side_prop(holder: Node3D, model: PackedScene, local_position: Vector3, target_height: float, max_footprint: float, rotation_y: float) -> void:
+	var visual: Node3D = model.instantiate() as Node3D
+	holder.add_child(visual)
+	var bounds: AABB = _calculate_visual_bounds(visual)
+	if bounds.size.x <= 0.001 or bounds.size.y <= 0.001 or bounds.size.z <= 0.001:
+		return
+	var height_scale: float = target_height / bounds.size.y
+	var footprint_scale: float = max_footprint / maxf(bounds.size.x, bounds.size.z)
+	var uniform_scale: float = minf(height_scale, footprint_scale)
+	var angle: float = deg_to_rad(rotation_y)
+	visual.rotation.y = angle
+	visual.scale = Vector3.ONE * uniform_scale
+	var anchor: Vector3 = Vector3(
+		(bounds.position.x + bounds.size.x * 0.5) * uniform_scale,
+		bounds.position.y * uniform_scale,
+		(bounds.position.z + bounds.size.z * 0.5) * uniform_scale
+	)
+	visual.position = local_position - anchor.rotated(Vector3.UP, angle)
+	_optimize_side_asset(visual)
+
+func _optimize_side_asset(visual: Node3D) -> void:
 	for collision_node: Node in visual.find_children("*", "CollisionShape3D", true, false):
 		var collision: CollisionShape3D = collision_node as CollisionShape3D
 		if collision != null:

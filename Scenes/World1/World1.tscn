@@ -1,17 +1,60 @@
-[gd_scene load_steps=20 format=3 uid="uid://8a00vmpjepds"]
+[gd_scene format=3 uid="uid://8a00vmpjepds"]
 
-[ext_resource type="Script" path="res://Scripts/World/world_1.gd" id="1_world"]
+[ext_resource type="Script" uid="uid://b045yj5b0n2an" path="res://Scripts/World/world_1.gd" id="1_world"]
 [ext_resource type="PackedScene" uid="uid://dtlchmt4fr0yc" path="res://Characters/Human/player.tscn" id="2_player"]
 [ext_resource type="Script" uid="uid://ciwhp3bcm8m1c" path="res://Scripts/Camera/gamecamera.gd" id="3_camera"]
-[ext_resource type="Texture2D" path="res://Assets/UI/Icons/coin_icon.png" id="4_coin_icon"]
-[ext_resource type="Texture2D" path="res://Assets/UI/Icons/ubicacion.png" id="5_location_icon"]
-[ext_resource type="PackedScene" path="res://Assets/Models/Enviroment/world1/cordillera_nieve.glb" id="6_cordillera"]
+[ext_resource type="Texture2D" uid="uid://m5hvi1wi3dcm" path="res://Assets/UI/Icons/coin_icon.png" id="4_coin_icon"]
+[ext_resource type="Texture2D" uid="uid://cmw7wcrytls5f" path="res://Assets/UI/Icons/ubicacion.png" id="5_location_icon"]
+[ext_resource type="PackedScene" uid="uid://ccn3c3xt3mumq" path="res://Assets/Models/Enviroment/world1/cordillera_nieve.glb" id="6_cordillera"]
+
+[sub_resource type="Shader" id="SideSnowShader"]
+code = "shader_type spatial;
+render_mode unshaded;
+
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+
+void fragment() {
+    float n = noise(UV * vec2(18.0, 80.0));
+    vec3 frozen_blue = vec3(0.64, 0.82, 0.94);
+    vec3 snow_blue = vec3(0.82, 0.93, 1.0);
+    ALBEDO = mix(frozen_blue, snow_blue, 0.32 + n * 0.24);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="SideSnowMaterial"]
+render_priority = 0
+shader = SubResource("SideSnowShader")
+
+[sub_resource type="PlaneMesh" id="SideSnowMesh"]
+material = SubResource("SideSnowMaterial")
+size = Vector2(180, 4000)
+
+[sub_resource type="StandardMaterial3D" id="CloudMaterial"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0.94, 0.98, 1, 0.72)
+
+[sub_resource type="SphereMesh" id="CloudMesh"]
+material = SubResource("CloudMaterial")
+radius = 1.0
+height = 2.0
+radial_segments = 12
+rings = 6
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMaterial"]
 sky_top_color = Color(0.16, 0.43, 0.72, 1)
 sky_horizon_color = Color(0.43, 0.65, 0.82, 1)
-ground_bottom_color = Color(0.18, 0.3, 0.4, 1)
-ground_horizon_color = Color(0.4, 0.58, 0.72, 1)
+ground_bottom_color = Color(0.43, 0.65, 0.82, 1)
+ground_horizon_color = Color(0.43, 0.65, 0.82, 1)
 
 [sub_resource type="Sky" id="Sky"]
 sky_material = SubResource("SkyMaterial")
@@ -19,49 +62,28 @@ sky_material = SubResource("SkyMaterial")
 [sub_resource type="Environment" id="Environment"]
 background_mode = 2
 sky = SubResource("Sky")
-fog_enabled = false
-fog_light_color = Color(0.5, 0.67, 0.78, 1)
-fog_density = 0.01
-fog_depth_begin = 48.0
-fog_depth_end = 150.0
 ambient_light_source = 3
 ambient_light_color = Color(0.44, 0.58, 0.74, 1)
 ambient_light_energy = 0.82
 tonemap_exposure = 0.88
+fog_light_color = Color(0.5, 0.67, 0.78, 1)
+fog_depth_begin = 48.0
+fog_depth_end = 150.0
 adjustment_enabled = true
 adjustment_brightness = 0.99
 adjustment_contrast = 1.04
 adjustment_saturation = 0.94
 
-[sub_resource type="StyleBoxFlat" id="HudPanel"]
-bg_color = Color(0.025, 0.055, 0.08, 0.78)
-corner_radius_top_left = 18
-corner_radius_top_right = 18
-corner_radius_bottom_right = 18
-corner_radius_bottom_left = 18
-
-[sub_resource type="StyleBoxFlat" id="MessageCard"]
-bg_color = Color(0.025, 0.055, 0.08, 0.94)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.3, 0.85, 0.72, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-
 [sub_resource type="StyleBoxFlat" id="CoinPanel"]
+content_margin_left = 6.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
 bg_color = Color(0.02, 0.075, 0.13, 0.58)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-content_margin_left = 6.0
-content_margin_top = 4.0
-content_margin_right = 12.0
-content_margin_bottom = 4.0
 
 [sub_resource type="StyleBoxFlat" id="GemPanel"]
 bg_color = Color(0.42, 1, 0.7, 0.22)
@@ -77,104 +99,84 @@ corner_radius_bottom_left = 28
 
 [sub_resource type="StyleBoxFlat" id="GemBarFill"]
 bg_color = Color(0.52, 1, 0.68, 0.78)
-corner_radius_top_left = 0
-corner_radius_top_right = 0
 corner_radius_bottom_right = 28
 corner_radius_bottom_left = 28
 
-[sub_resource type="Shader" id="SideSnowShader"]
-code = "shader_type spatial;\nrender_mode unshaded;\n\nfloat hash(vec2 p) {\n    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);\n}\n\nfloat noise(vec2 p) {\n    vec2 i = floor(p);\n    vec2 f = fract(p);\n    f = f * f * (3.0 - 2.0 * f);\n    return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);\n}\n\nvoid fragment() {\n    float n = noise(UV * vec2(18.0, 80.0));\n    vec3 frozen_blue = vec3(0.26, 0.46, 0.62);\n    vec3 snow_blue = vec3(0.4, 0.61, 0.75);\n    ALBEDO = mix(frozen_blue, snow_blue, 0.32 + n * 0.24);\n}\n"
+[sub_resource type="StyleBoxFlat" id="MessageCard"]
+bg_color = Color(0.025, 0.055, 0.08, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.85, 0.72, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
 
-[sub_resource type="ShaderMaterial" id="SideSnowMaterial"]
-shader = SubResource("SideSnowShader")
-
-[sub_resource type="PlaneMesh" id="SideSnowMesh"]
-material = SubResource("SideSnowMaterial")
-size = Vector2(32, 1200)
-
-[sub_resource type="StandardMaterial3D" id="CloudMaterial"]
-transparency = 1
-shading_mode = 0
-albedo_color = Color(0.94, 0.98, 1, 0.72)
-
-[sub_resource type="SphereMesh" id="CloudMesh"]
-material = SubResource("CloudMaterial")
-radius = 1.0
-height = 2.0
-radial_segments = 12
-rings = 6
-
-[node name="World1" type="Node3D"]
+[node name="World1" type="Node3D" unique_id=941761031]
 script = ExtResource("1_world")
 
-[node name="SideSnowBase" type="MeshInstance3D" parent="."]
-visible = false
-position = Vector3(0, 0.2, -500)
+[node name="SideSnowBase" type="MeshInstance3D" parent="." unique_id=2118563739]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.32, -1800)
+visible = true
 cast_shadow = 0
 mesh = SubResource("SideSnowMesh")
 
-[node name="HorizonBackdrop" type="Node3D" parent="."]
-position = Vector3(0, 0, -650)
+[node name="HorizonBackdrop" type="Node3D" parent="." unique_id=821325425]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -650)
 
-[node name="CordilleraNieve" parent="HorizonBackdrop" instance=ExtResource("6_cordillera")]
-position = Vector3(0, 60, 0)
-scale = Vector3(125, 210, 70)
+[node name="CordilleraNieve" parent="HorizonBackdrop" unique_id=1463265593 instance=ExtResource("6_cordillera")]
+transform = Transform3D(155, 0, 0, 0, 230, 0, 0, 0, 70, 0, 42, 0)
 
-[node name="CloudLeft" type="MeshInstance3D" parent="HorizonBackdrop"]
-position = Vector3(-76, 126, 80)
-scale = Vector3(20, 5, 3)
+[node name="CloudLeft" type="MeshInstance3D" parent="HorizonBackdrop" unique_id=1228390138]
+transform = Transform3D(20, 0, 0, 0, 5, 0, 0, 0, 3, -76, 126, 80)
 cast_shadow = 0
 mesh = SubResource("CloudMesh")
 
-[node name="CloudLeftSmall" type="MeshInstance3D" parent="HorizonBackdrop"]
-position = Vector3(-55, 129, 80)
-scale = Vector3(13, 7, 3)
+[node name="CloudLeftSmall" type="MeshInstance3D" parent="HorizonBackdrop" unique_id=2032974200]
+transform = Transform3D(13, 0, 0, 0, 7, 0, 0, 0, 3, -55, 129, 80)
 cast_shadow = 0
 mesh = SubResource("CloudMesh")
 
-[node name="CloudRight" type="MeshInstance3D" parent="HorizonBackdrop"]
-position = Vector3(82, 143, 65)
-scale = Vector3(24, 6, 3)
+[node name="CloudRight" type="MeshInstance3D" parent="HorizonBackdrop" unique_id=1425044313]
+transform = Transform3D(24, 0, 0, 0, 6, 0, 0, 0, 3, 82, 143, 65)
 cast_shadow = 0
 mesh = SubResource("CloudMesh")
 
-[node name="CloudRightSmall" type="MeshInstance3D" parent="HorizonBackdrop"]
-position = Vector3(108, 146, 65)
-scale = Vector3(14, 8, 3)
+[node name="CloudRightSmall" type="MeshInstance3D" parent="HorizonBackdrop" unique_id=731176858]
+transform = Transform3D(14, 0, 0, 0, 8, 0, 0, 0, 3, 108, 146, 65)
 cast_shadow = 0
 mesh = SubResource("CloudMesh")
 
-[node name="Ground" type="Node3D" parent="."]
+[node name="Ground" type="Node3D" parent="." unique_id=1210371090]
 
-[node name="Course" type="Node3D" parent="."]
+[node name="Course" type="Node3D" parent="." unique_id=125369724]
 
-[node name="Player" parent="." instance=ExtResource("2_player")]
+[node name="Player" parent="." unique_id=629690139 instance=ExtResource("2_player")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.5, 0)
 lane_distance = 2.7
 
-[node name="GameCamera" type="Camera3D" parent="." node_paths=PackedStringArray("player")]
-position = Vector3(0, 3.35, 7.2)
-rotation_degrees = Vector3(-14, 0, 0)
+[node name="GameCamera" type="Camera3D" parent="." unique_id=1762974329 node_paths=PackedStringArray("player")]
+transform = Transform3D(1, 0, 0, 0, 0.9702957, 0.2419219, 0, -0.2419219, 0.9702957, 0, 3.35, 7.2)
 current = true
 fov = 62.0
 script = ExtResource("3_camera")
 player = NodePath("../Player")
-height_offset = 3.35
-distance_offset = 7.2
 horizontal_follow = 0.7
 
-[node name="Sun" type="DirectionalLight3D" parent="."]
-rotation_degrees = Vector3(-52, -28, 0)
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=1248968461]
+transform = Transform3D(0.88294756, 0.36994863, -0.2890356, 0, 0.6156615, 0.7880107, 0.46947157, -0.6957722, 0.5435968, 0, 0, 0)
 light_color = Color(0.9, 0.95, 1, 1)
 light_energy = 2.05
 shadow_enabled = true
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1070759973]
 environment = SubResource("Environment")
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=704586631]
 
-[node name="SafeArea" type="MarginContainer" parent="HUD"]
+[node name="SafeArea" type="MarginContainer" parent="HUD" unique_id=1546867178]
 anchors_preset = 10
 anchor_right = 1.0
 offset_left = 22.0
@@ -183,86 +185,85 @@ offset_right = -22.0
 offset_bottom = 104.0
 grow_horizontal = 2
 
-[node name="TopBar" type="MarginContainer" parent="HUD/SafeArea"]
+[node name="TopBar" type="MarginContainer" parent="HUD/SafeArea" unique_id=1419166341]
 layout_mode = 2
 
-[node name="Stats" type="HBoxContainer" parent="HUD/SafeArea/TopBar"]
+[node name="Stats" type="HBoxContainer" parent="HUD/SafeArea/TopBar" unique_id=1239241175]
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="Distance" type="PanelContainer" parent="HUD/SafeArea/TopBar/Stats"]
+[node name="Distance" type="PanelContainer" parent="HUD/SafeArea/TopBar/Stats" unique_id=2006706943]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_styles/panel = SubResource("CoinPanel")
 
-[node name="Content" type="HBoxContainer" parent="HUD/SafeArea/TopBar/Stats/Distance"]
+[node name="Content" type="HBoxContainer" parent="HUD/SafeArea/TopBar/Stats/Distance" unique_id=1602553540]
 layout_mode = 2
 theme_override_constants/separation = 7
 alignment = 1
 
-[node name="Icon" type="TextureRect" parent="HUD/SafeArea/TopBar/Stats/Distance/Content"]
+[node name="Icon" type="TextureRect" parent="HUD/SafeArea/TopBar/Stats/Distance/Content" unique_id=1098994462]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 texture = ExtResource("5_location_icon")
 expand_mode = 3
 stretch_mode = 5
 
-[node name="Value" type="Label" parent="HUD/SafeArea/TopBar/Stats/Distance/Content"]
+[node name="Value" type="Label" parent="HUD/SafeArea/TopBar/Stats/Distance/Content" unique_id=1333137791]
 custom_minimum_size = Vector2(82, 0)
 layout_mode = 2
-text = "000 m"
-vertical_alignment = 1
-horizontal_alignment = 1
 theme_override_colors/font_color = Color(0.55, 1, 0.48, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 27
+text = "000 m"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Spacer" type="Control" parent="HUD/SafeArea/TopBar/Stats"]
+[node name="Spacer" type="Control" parent="HUD/SafeArea/TopBar/Stats" unique_id=1974868198]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="CoinCounter" type="PanelContainer" parent="HUD/SafeArea/TopBar/Stats"]
+[node name="CoinCounter" type="PanelContainer" parent="HUD/SafeArea/TopBar/Stats" unique_id=129382472]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_styles/panel = SubResource("CoinPanel")
 
-[node name="Content" type="HBoxContainer" parent="HUD/SafeArea/TopBar/Stats/CoinCounter"]
+[node name="Content" type="HBoxContainer" parent="HUD/SafeArea/TopBar/Stats/CoinCounter" unique_id=898804250]
 layout_mode = 2
 theme_override_constants/separation = 7
 alignment = 1
 
-[node name="Icon" type="TextureRect" parent="HUD/SafeArea/TopBar/Stats/CoinCounter/Content"]
+[node name="Icon" type="TextureRect" parent="HUD/SafeArea/TopBar/Stats/CoinCounter/Content" unique_id=1914618319]
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 texture = ExtResource("4_coin_icon")
 expand_mode = 3
 stretch_mode = 5
 
-[node name="Amount" type="Label" parent="HUD/SafeArea/TopBar/Stats/CoinCounter/Content"]
+[node name="Amount" type="Label" parent="HUD/SafeArea/TopBar/Stats/CoinCounter/Content" unique_id=111900434]
 custom_minimum_size = Vector2(54, 0)
 layout_mode = 2
-text = "00"
-vertical_alignment = 1
 theme_override_colors/font_color = Color(1, 0.78, 0.05, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.75)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 28
+text = "00"
+vertical_alignment = 1
 
-[node name="GemMeter" type="Panel" parent="HUD"]
+[node name="GemMeter" type="Panel" parent="HUD" unique_id=1436795322]
+clip_contents = true
 offset_left = 28.0
 offset_top = 132.0
 offset_right = 88.0
 offset_bottom = 290.0
-clip_contents = true
 theme_override_styles/panel = SubResource("GemPanel")
 
-[node name="Fill" type="Panel" parent="HUD/GemMeter"]
+[node name="Fill" type="Panel" parent="HUD/GemMeter" unique_id=2000850097]
 layout_mode = 1
-anchor_left = 0.0
-anchor_top = 0.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 2.0
@@ -274,7 +275,7 @@ grow_vertical = 0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("GemBarFill")
 
-[node name="Hint" type="Label" parent="HUD"]
+[node name="Hint" type="Label" parent="HUD" unique_id=1576501616]
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
@@ -283,12 +284,12 @@ offset_top = -70.0
 offset_bottom = -24.0
 grow_horizontal = 2
 grow_vertical = 0
-text = "← → cambiar carril    ESPACIO saltar"
-horizontal_alignment = 1
 theme_override_colors/font_color = Color(1, 1, 1, 0.72)
 theme_override_font_sizes/font_size = 16
+text = "← → cambiar carril    ESPACIO saltar"
+horizontal_alignment = 1
 
-[node name="MessagePanel" type="Control" parent="HUD"]
+[node name="MessagePanel" type="Control" parent="HUD" unique_id=473604777]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -297,7 +298,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 
-[node name="Shade" type="ColorRect" parent="HUD/MessagePanel"]
+[node name="Shade" type="ColorRect" parent="HUD/MessagePanel" unique_id=812244303]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -306,7 +307,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.45)
 
-[node name="Card" type="PanelContainer" parent="HUD/MessagePanel"]
+[node name="Card" type="PanelContainer" parent="HUD/MessagePanel" unique_id=1935812450]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -321,20 +322,20 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("MessageCard")
 
-[node name="Content" type="VBoxContainer" parent="HUD/MessagePanel/Card"]
+[node name="Content" type="VBoxContainer" parent="HUD/MessagePanel/Card" unique_id=1233048819]
 layout_mode = 2
 theme_override_constants/separation = 18
 alignment = 1
 
-[node name="Title" type="Label" parent="HUD/MessagePanel/Card/Content"]
+[node name="Title" type="Label" parent="HUD/MessagePanel/Card/Content" unique_id=1482851260]
 layout_mode = 2
-text = "MUNDO 1"
-horizontal_alignment = 1
 theme_override_colors/font_color = Color(0.3, 0.85, 0.72, 1)
 theme_override_font_sizes/font_size = 30
+text = "MUNDO 1"
+horizontal_alignment = 1
 
-[node name="Message" type="Label" parent="HUD/MessagePanel/Card/Content"]
+[node name="Message" type="Label" parent="HUD/MessagePanel/Card/Content" unique_id=933278544]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "Pulsa para continuar"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 20

@@ -24,7 +24,7 @@ shape = SubResource("CapsuleShape3D_f6ss6")
 visible = false
 mesh = SubResource("CapsuleMesh_mhv3j")
 
-[node name="VisualPivot" type="Node3D" parent="."]
+[node name="VisualPivot" type="Node3D" parent="." unique_id=1184163803]
 
 [node name="Fast Run" parent="VisualPivot" unique_id=1761502835 instance=ExtResource("2_850g3")]
 transform = Transform3D(155, 0, 0, 0, 155, 0, 0, 0, 155, 0, 0, 0)
