@@ -1,0 +1,238 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/auth_overlay.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleCard"]
+bg_color = Color(0.025, 0.065, 0.075, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.18, 0.92, 0.56, 0.85)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleButton"]
+bg_color = Color(0.08, 0.34, 0.2, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.32, 1, 0.57, 0.85)
+corner_radius_top_left = 13
+corner_radius_top_right = 13
+corner_radius_bottom_right = 13
+corner_radius_bottom_left = 13
+
+[sub_resource type="StyleBoxFlat" id="StyleButtonHover"]
+bg_color = Color(0.12, 0.52, 0.28, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.65, 1, 0.72, 1)
+corner_radius_top_left = 13
+corner_radius_top_right = 13
+corner_radius_bottom_right = 13
+corner_radius_bottom_left = 13
+
+[sub_resource type="StyleBoxFlat" id="StyleInput"]
+bg_color = Color(0.02, 0.035, 0.04, 0.78)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.72, 0.52, 0.72)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 16.0
+content_margin_right = 16.0
+
+[sub_resource type="StyleBoxFlat" id="StyleGhost"]
+bg_color = Color(0.04, 0.1, 0.1, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.75, 0.66, 0.55)
+corner_radius_top_left = 13
+corner_radius_top_right = 13
+corner_radius_bottom_right = 13
+corner_radius_bottom_left = 13
+
+[node name="AuthOverlay" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_script")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.02, 0.025, 0.34)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 70.0
+offset_right = -28.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Card" type="PanelContainer" parent="Center"]
+custom_minimum_size = Vector2(450, 0)
+layout_mode = 2
+pivot_offset = Vector2(225, 300)
+theme_override_styles/panel = SubResource("StyleCard")
+
+[node name="Margin" type="MarginContainer" parent="Center/Card"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 30
+
+[node name="Layout" type="VBoxContainer" parent="Center/Card/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Title" type="Label" parent="Center/Card/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 1, 0.65, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 35
+text = "BIENVENIDO"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center/Card/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.94, 0.92, 1)
+theme_override_font_sizes/font_size = 18
+text = "Guarda tu aventura o entra directamente al mundo de BeastMorph."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Choices" type="VBoxContainer" parent="Center/Card/Margin/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 13
+
+[node name="CreateAccount" type="Button" parent="Center/Card/Margin/Layout/Choices"]
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+theme_override_font_sizes/font_size = 23
+theme_override_styles/normal = SubResource("StyleButton")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonHover")
+text = "CREAR CUENTA"
+
+[node name="SignIn" type="Button" parent="Center/Card/Margin/Layout/Choices"]
+custom_minimum_size = Vector2(0, 62)
+layout_mode = 2
+theme_override_font_sizes/font_size = 23
+theme_override_styles/normal = SubResource("StyleButton")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonHover")
+text = "INICIAR SESIÓN"
+
+[node name="Guest" type="Button" parent="Center/Card/Margin/Layout/Choices"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.92, 0.9, 1)
+theme_override_font_sizes/font_size = 21
+theme_override_styles/normal = SubResource("StyleGhost")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+text = "CONTINUAR COMO INVITADO"
+
+[node name="GuestNote" type="Label" parent="Center/Card/Margin/Layout/Choices"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.78, 0.76, 1)
+theme_override_font_sizes/font_size = 14
+text = "El progreso invitado se guarda solamente en este dispositivo."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Form" type="VBoxContainer" parent="Center/Card/Margin/Layout"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FormTitle" type="Label" parent="Center/Card/Margin/Layout/Form"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.82, 0.25, 1)
+theme_override_font_sizes/font_size = 25
+text = "CREAR CUENTA"
+horizontal_alignment = 1
+
+[node name="Email" type="LineEdit" parent="Center/Card/Margin/Layout/Form"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("StyleInput")
+placeholder_text = "Correo electrónico"
+virtual_keyboard_type = 2
+
+[node name="Password" type="LineEdit" parent="Center/Card/Margin/Layout/Form"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("StyleInput")
+placeholder_text = "Contraseña (mínimo 8 caracteres)"
+secret = true
+
+[node name="ConfirmPassword" type="LineEdit" parent="Center/Card/Margin/Layout/Form"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("StyleInput")
+placeholder_text = "Confirmar contraseña"
+secret = true
+
+[node name="Message" type="Label" parent="Center/Card/Margin/Layout/Form"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Submit" type="Button" parent="Center/Card/Margin/Layout/Form"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_styles/normal = SubResource("StyleButton")
+theme_override_styles/hover = SubResource("StyleButtonHover")
+theme_override_styles/pressed = SubResource("StyleButtonHover")
+text = "CONTINUAR"
+
+[node name="Recover" type="Button" parent="Center/Card/Margin/Layout/Form"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 1, 0.75, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleGhost")
+text = "¿OLVIDASTE TU CONTRASEÑA?"
+
+[node name="Back" type="Button" parent="Center/Card/Margin/Layout/Form"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("StyleGhost")
+text = "VOLVER"

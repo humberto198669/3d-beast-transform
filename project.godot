@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 Progression="*res://Scripts/Core/progression.gd"
 SceneTransition="*res://Scripts/Core/scene_transition.gd"
+SupabaseManager="*res://Scripts/Core/supabase_manager.gd"
 
 [display]
 

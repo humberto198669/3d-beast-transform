@@ -69,7 +69,7 @@ theme_override_constants/separation = 18
 alignment = 1
 
 [node name="Icon" type="TextureRect" parent="Content/Margin/Layout"]
-custom_minimum_size = Vector2(230, 230)
+custom_minimum_size = Vector2(170, 170)
 layout_mode = 2
 texture = ExtResource("3_icon")
 expand_mode = 1
@@ -97,6 +97,56 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("5_font")
 theme_override_font_sizes/font_size = 20
 text = "SONIDO DEL JUEGO"
+
+[node name="AccountStatus" type="Label" parent="Content/Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.92, 0.82, 1)
+theme_override_font_sizes/font_size = 16
+text = "MODO INVITADO"
+horizontal_alignment = 1
+
+[node name="ChangePassword" type="Button" parent="Content/Margin/Layout"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "CAMBIAR CONTRASEÑA"
+
+[node name="PasswordForm" type="VBoxContainer" parent="Content/Margin/Layout"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="NewPassword" type="LineEdit" parent="Content/Margin/Layout/PasswordForm"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+placeholder_text = "Nueva contraseña"
+secret = true
+
+[node name="ConfirmPassword" type="LineEdit" parent="Content/Margin/Layout/PasswordForm"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+placeholder_text = "Confirmar contraseña"
+secret = true
+
+[node name="PasswordMessage" type="Label" parent="Content/Margin/Layout/PasswordForm"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="SavePassword" type="Button" parent="Content/Margin/Layout/PasswordForm"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "GUARDAR CONTRASEÑA"
+
+[node name="SignOut" type="Button" parent="Content/Margin/Layout"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "CERRAR SESIÓN"
 
 [node name="BottomNavigation" parent="." instance=ExtResource("4_nav")]
 layout_mode = 1

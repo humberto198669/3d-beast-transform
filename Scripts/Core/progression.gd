@@ -1,6 +1,7 @@
 extends Node
 
 const SAVE_PATH := "user://progression.cfg"
+const SAVE_VERSION := 1
 const FIRST_STAGE_END_LEVEL := 5
 const SECOND_STAGE_END_LEVEL := 20
 const FIRST_LEVEL_DISTANCE := 5000
@@ -17,9 +18,12 @@ var selected_character_id: String = "ethan"
 var owned_character_ids: PackedStringArray = PackedStringArray(["ethan"])
 var pending_run_coins: int = 0
 var pending_run_distance: int = 0
+var local_player_id: String = ""
+var save_updated_at: int = 0
 
 func _ready() -> void:
 	load_progress()
+	_ensure_local_player_id()
 	_apply_sound_setting()
 
 func record_run(distance: int, coins: int) -> void:
@@ -70,6 +74,7 @@ func take_pending_run_animation() -> Vector2i:
 	var pending: Vector2i = Vector2i(pending_run_coins, pending_run_distance)
 	pending_run_coins = 0
 	pending_run_distance = 0
+	save_progress()
 	return pending
 
 func is_story_mode_unlocked() -> bool:
@@ -96,7 +101,12 @@ func _apply_sound_setting() -> void:
 		AudioServer.set_bus_mute(master_bus, not sound_enabled)
 
 func save_progress() -> void:
+	_ensure_local_player_id()
+	save_updated_at = int(Time.get_unix_time_from_system())
 	var config: ConfigFile = ConfigFile.new()
+	config.set_value("save", "version", SAVE_VERSION)
+	config.set_value("save", "local_player_id", local_player_id)
+	config.set_value("save", "updated_at", save_updated_at)
 	config.set_value("progress", "total_coins", total_coins)
 	config.set_value("progress", "total_distance", total_distance)
 	config.set_value("progress", "best_distance", best_distance)
@@ -109,6 +119,9 @@ func load_progress() -> void:
 	var config: ConfigFile = ConfigFile.new()
 	if config.load(SAVE_PATH) != OK:
 		return
+	var loaded_version: int = int(config.get_value("save", "version", 0))
+	local_player_id = str(config.get_value("save", "local_player_id", ""))
+	save_updated_at = int(config.get_value("save", "updated_at", 0))
 	total_coins = int(config.get_value("progress", "total_coins", 0))
 	total_distance = int(config.get_value("progress", "total_distance", 0))
 	best_distance = int(config.get_value("progress", "best_distance", 0))
@@ -119,3 +132,47 @@ func load_progress() -> void:
 	selected_character_id = str(config.get_value("characters", "selected", "ethan"))
 	if not owns_character(selected_character_id):
 		selected_character_id = "ethan"
+	if loaded_version < SAVE_VERSION:
+		_migrate_save(loaded_version)
+
+func export_progress_data() -> Dictionary:
+	# Esta estructura podrá enviarse a la nube cuando se agreguen cuentas.
+	return {
+		"save_version": SAVE_VERSION,
+		"local_player_id": local_player_id,
+		"updated_at": save_updated_at,
+		"total_coins": total_coins,
+		"total_distance": total_distance,
+		"best_distance": best_distance,
+		"sound_enabled": sound_enabled,
+		"selected_character_id": selected_character_id,
+		"owned_character_ids": Array(owned_character_ids),
+	}
+
+func merge_cloud_progress(cloud_data: Dictionary) -> void:
+	# Nunca sustituye un avance local superior por una copia remota inferior.
+	total_coins = maxi(total_coins, int(cloud_data.get("total_coins", 0)))
+	total_distance = maxi(total_distance, int(cloud_data.get("total_distance", 0)))
+	best_distance = maxi(best_distance, int(cloud_data.get("best_distance", 0)))
+	var cloud_owned_variant: Variant = cloud_data.get("owned_character_ids", [])
+	if cloud_owned_variant is Array:
+		for character_variant: Variant in cloud_owned_variant as Array:
+			var character_id: String = str(character_variant)
+			if not character_id.is_empty() and not owned_character_ids.has(character_id):
+				owned_character_ids.append(character_id)
+	var cloud_selected: String = str(cloud_data.get("selected_character_id", "ethan"))
+	if selected_character_id == "ethan" and owned_character_ids.has(cloud_selected):
+		selected_character_id = cloud_selected
+	save_progress()
+
+func _ensure_local_player_id() -> void:
+	if not local_player_id.is_empty():
+		return
+	var random_bytes: PackedByteArray = Crypto.new().generate_random_bytes(16)
+	local_player_id = random_bytes.hex_encode()
+
+func _migrate_save(_from_version: int) -> void:
+	# La versión 0 corresponde a partidas creadas antes del versionado.
+	# Sus monedas, distancia, récord y personajes ya fueron cargados arriba.
+	_ensure_local_player_id()
+	save_progress()

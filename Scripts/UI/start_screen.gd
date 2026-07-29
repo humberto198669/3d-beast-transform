@@ -9,6 +9,7 @@ extends Control
 
 @onready var progress_bar: ProgressBar = $ProgressBar
 @onready var enter_button: Button = $EnterButton
+@onready var auth_overlay: Control = $AuthOverlay
 
 var elapsed := 0.0
 var loading_done := false
@@ -18,6 +19,7 @@ func _ready():
 	enter_button.visible = false
 	enter_button.disabled = true
 	enter_button.pressed.connect(_on_enter_pressed)
+	auth_overlay.continue_requested.connect(_continue_to_menu)
 
 func _process(delta):
 	if loading_done:
@@ -42,5 +44,13 @@ func _on_loading_finished():
 	reveal_tween.tween_property(enter_button, "modulate:a", 1.0, 0.28)
 	reveal_tween.tween_property(enter_button, "scale", Vector2.ONE, 0.42).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-func _on_enter_pressed():
+func _on_enter_pressed() -> void:
+	if SupabaseManager.is_logged_in():
+		enter_button.disabled = true
+		await SupabaseManager.synchronize_progress()
+		_continue_to_menu()
+		return
+	auth_overlay.open()
+
+func _continue_to_menu() -> void:
 	SceneTransition.change_scene(next_scene_path)

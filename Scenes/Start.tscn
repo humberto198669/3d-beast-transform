@@ -1,8 +1,9 @@
-[gd_scene format=3 uid="uid://cqf1xk8s0t2wp"]
+[gd_scene load_steps=5 format=3 uid="uid://cqf1xk8s0t2wp"]
 
 [ext_resource type="Texture2D" uid="uid://6tuwtwsib8oq" path="res://Image/Start/Juego Inicio.png" id="1_cover"]
 [ext_resource type="Script" uid="uid://cd8ka63ixn0ag" path="res://Scripts/UI/start_screen.gd" id="2_script"]
 [ext_resource type="PackedScene" uid="uid://dqk3n0x7b2gws" path="res://Scenes/UI/Boton3D.tscn" id="3_boton3d"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/AuthOverlay.tscn" id="4_auth"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar"]
 bg_color = Color(0.85, 0.85, 0.85, 0.35)
@@ -71,3 +72,5 @@ offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 0
 label_text = "ENTRAR"
+
+[node name="AuthOverlay" parent="." instance=ExtResource("4_auth")]

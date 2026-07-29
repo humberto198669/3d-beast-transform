@@ -27,6 +27,7 @@ const NEW_SIDE_HILLS := preload("res://Assets/Models/Enviroment/world1/Modular/n
 const NEW_SIDE_COLORFUL := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/colorido.glb")
 const NEW_SIDE_ROCKS := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/piedras.glb")
 const SNOW_VOLCANO_MODEL := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/volcan_nieve.glb")
+const STRAIGHT_MOUNTAINS_MODEL := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/montanas_rectas.glb")
 
 const LANES := [-2.7, 0.0, 2.7]
 # Solo existen los tres carriles jugables. El paisaje modular comienza justo
@@ -45,6 +46,11 @@ const SIDE_SCENARIO_MODULES := 9
 const SIDE_SCENARIO_COUNT := 5
 const VOLCANO_SPACING := 300.0
 const VOLCANO_CYCLE_LENGTH := VOLCANO_SPACING * 2.0
+const STRAIGHT_MOUNTAIN_SPACING := 300.0
+const STRAIGHT_MOUNTAIN_CYCLE_LENGTH := STRAIGHT_MOUNTAIN_SPACING * 3.0
+const LANDFORM_SPACING := 52.0
+const LANDFORM_COUNT_PER_SIDE := 16
+const LANDFORM_LOOP_LENGTH := LANDFORM_SPACING * LANDFORM_COUNT_PER_SIDE
 const MOUNTAIN_APPROACH_DEPTH := 290.0
 const MOUNTAIN_APPROACH_SLOWNESS := 6000.0
 const SNOWFALL_INTERVAL := 20.0
@@ -110,6 +116,9 @@ var bear_left_visual: Node3D
 var bear_right_visual: Node3D
 var bear_jump_visual: Node3D
 var snow_volcanoes: Array[Node3D] = []
+var straight_mountains: Array[Node3D] = []
+var background_landforms: Array[Node3D] = []
+var moving_sky_clouds: Array[Node3D] = []
 var snowfall: GPUParticles3D
 var snowfall_elapsed := 0.0
 var bear_action_serial := 0
@@ -127,8 +136,9 @@ func _ready() -> void:
 	_prepare_bear_visual()
 	_build_ground()
 	_build_course()
-	_build_snow_volcano_cycle()
+	_build_background_landform_chain()
 	_prepare_snowfall()
+	_prepare_moving_sky_clouds()
 	_disable_horizon_shadows()
 	player.crashed.connect(_on_player_crashed)
 	player.beast_hit_mammoth.connect(_on_beast_hit_mammoth)
@@ -164,6 +174,72 @@ func _disable_horizon_shadows() -> void:
 		var geometry: GeometryInstance3D = geometry_node as GeometryInstance3D
 		if geometry != null:
 			geometry.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+func _build_background_landform_chain() -> void:
+	# Dos cadenas desfasadas evitan la simetría: cuatro montañas, un volcán,
+	# tres montañas y otro volcán. Las piezas se solapan visualmente.
+	for side_index: int in range(2):
+		var side_sign: float = -1.0 if side_index == 0 else 1.0
+		for slot_index: int in range(LANDFORM_COUNT_PER_SIDE):
+			var pattern_index: int = (slot_index + side_index * 3) % 9
+			var use_volcano: bool = pattern_index == 4 or pattern_index == 8
+			var z_position: float = -135.0 - float(slot_index) * LANDFORM_SPACING
+			_add_background_landform(side_sign, z_position, slot_index, side_index, use_volcano)
+
+func _add_background_landform(
+	side_sign: float,
+	z_position: float,
+	slot_index: int,
+	side_index: int,
+	use_volcano: bool
+) -> void:
+	var holder: Node3D = Node3D.new()
+	holder.name = "Landscape_%s_%02d" % ["Left" if side_sign < 0.0 else "Right", slot_index]
+	var depth_variants: Array[float] = [0.0, 2.0, -1.5, 3.0, -2.0]
+	var lateral_variants: Array[float] = [0.0, 1.6, -1.2, 2.2, -1.8]
+	var variant_index: int = (slot_index + side_index * 2) % depth_variants.size()
+	holder.position = Vector3(
+		side_sign * (31.0 + lateral_variants[variant_index]),
+		SIDE_ENVIRONMENT_Y,
+		z_position + depth_variants[variant_index]
+	)
+	holder.set_meta("landform_side", side_sign)
+	course.add_child(holder)
+
+	var source_model: PackedScene = SNOW_VOLCANO_MODEL if use_volcano else STRAIGHT_MOUNTAINS_MODEL
+	var visual: Node3D = source_model.instantiate() as Node3D
+	holder.add_child(visual)
+	var bounds: AABB = _calculate_visual_bounds(visual)
+	if bounds.size.x <= 0.001 or bounds.size.y <= 0.001 or bounds.size.z <= 0.001:
+		background_landforms.append(holder)
+		return
+
+	var scale_variants: Array[float] = [0.78, 0.92, 1.08, 1.18, 0.86, 1.02]
+	var rotation_variants: Array[float] = [-9.0, 5.0, -3.0, 10.0, 2.0, -6.0]
+	var visual_variant: int = (slot_index * 2 + side_index) % scale_variants.size()
+	var target_width: float = (39.0 if use_volcano else 50.0) * scale_variants[visual_variant]
+	var target_height: float = (31.0 if use_volcano else 28.0) * scale_variants[visual_variant]
+	var width_scale: float = target_width / maxf(bounds.size.x, bounds.size.z)
+	var height_scale: float = target_height / bounds.size.y
+	var landform_scale: float = minf(width_scale, height_scale)
+	var angle: float = deg_to_rad(rotation_variants[visual_variant] * side_sign)
+	visual.rotation.y = angle
+	visual.scale = Vector3.ONE * landform_scale
+	var anchor: Vector3 = Vector3(
+		(bounds.position.x + bounds.size.x * 0.5) * landform_scale,
+		bounds.position.y * landform_scale,
+		(bounds.position.z + bounds.size.z * 0.5) * landform_scale
+	)
+	visual.position = -anchor.rotated(Vector3.UP, angle)
+	_optimize_side_asset(visual)
+	background_landforms.append(holder)
+
+func _update_background_landform_chain() -> void:
+	for landform: Node3D in background_landforms:
+		if not is_instance_valid(landform):
+			continue
+		if landform.global_position.z > player.global_position.z + 105.0:
+			landform.position.z -= LANDFORM_LOOP_LENGTH
 
 func _build_snow_volcano_cycle() -> void:
 	# Dos volcanes separados 300 m: el cercano enmarca un costado y el siguiente
@@ -204,6 +280,47 @@ func _update_snow_volcano_cycle() -> void:
 			continue
 		if volcano.global_position.z > player.global_position.z + 85.0:
 			volcano.position.z -= VOLCANO_CYCLE_LENGTH
+
+func _build_straight_mountain_cycle() -> void:
+	# Alternan entre ambos costados y dejan libres los tres carriles.
+	# Al quedar atrás se reciclan al frente, igual que los volcanes.
+	for mountain_index: int in range(3):
+		var side_x: float = -31.0 if mountain_index % 2 == 0 else 31.0
+		_add_straight_mountain(
+			Vector3(side_x, SIDE_ENVIRONMENT_Y, -360.0 - STRAIGHT_MOUNTAIN_SPACING * mountain_index),
+			mountain_index
+		)
+
+func _add_straight_mountain(at: Vector3, cycle_index: int) -> void:
+	var holder: Node3D = Node3D.new()
+	holder.name = "StraightMountains%d" % cycle_index
+	holder.position = at
+	course.add_child(holder)
+	var visual: Node3D = STRAIGHT_MOUNTAINS_MODEL.instantiate() as Node3D
+	holder.add_child(visual)
+	var bounds: AABB = _calculate_visual_bounds(visual)
+	if bounds.size.x <= 0.001 or bounds.size.y <= 0.001 or bounds.size.z <= 0.001:
+		straight_mountains.append(holder)
+		return
+	var width_scale: float = 42.0 / maxf(bounds.size.x, bounds.size.z)
+	var height_scale: float = 25.0 / bounds.size.y
+	var mountain_scale: float = minf(width_scale, height_scale)
+	visual.scale = Vector3.ONE * mountain_scale
+	var anchor: Vector3 = Vector3(
+		(bounds.position.x + bounds.size.x * 0.5) * mountain_scale,
+		bounds.position.y * mountain_scale,
+		(bounds.position.z + bounds.size.z * 0.5) * mountain_scale
+	)
+	visual.position = -anchor
+	_optimize_side_asset(visual)
+	straight_mountains.append(holder)
+
+func _update_straight_mountain_cycle() -> void:
+	for mountain: Node3D in straight_mountains:
+		if not is_instance_valid(mountain):
+			continue
+		if mountain.global_position.z > player.global_position.z + 100.0:
+			mountain.position.z -= STRAIGHT_MOUNTAIN_CYCLE_LENGTH
 
 func _update_distant_mountain(distance: float) -> void:
 	# Acercamiento asintótico: avanza durante toda la partida, cada vez más lento,
@@ -254,6 +371,57 @@ func _update_snowfall(delta: float) -> void:
 		snowfall.emitting = should_snow
 	# El emisor acompaña al jugador, pero los copos emitidos quedan en el mundo.
 	snowfall.global_position = player.global_position + Vector3(0.0, 12.0, -20.0)
+
+func _prepare_moving_sky_clouds() -> void:
+	var cloud_template: MeshInstance3D = $HorizonBackdrop/CloudLeft
+	$HorizonBackdrop/CloudLeft.visible = false
+	$HorizonBackdrop/CloudLeftSmall.visible = false
+	$HorizonBackdrop/CloudRight.visible = false
+	$HorizonBackdrop/CloudRightSmall.visible = false
+	var cloud_positions: Array[Vector3] = [
+		Vector3(-165.0, 76.0, 145.0), Vector3(-118.0, 111.0, 70.0),
+		Vector3(-72.0, 91.0, 185.0), Vector3(-25.0, 126.0, 105.0),
+		Vector3(24.0, 79.0, 155.0), Vector3(70.0, 113.0, 60.0),
+		Vector3(116.0, 94.0, 190.0), Vector3(164.0, 120.0, 115.0),
+	]
+	var cloud_sizes: Array[float] = [2.8, 2.0, 3.1, 1.8, 2.6, 2.1, 3.0, 2.2]
+	var cloud_speeds: Array[float] = [1.5, 2.0, 2.5, 1.7, 2.8, 2.2, 3.1, 2.0]
+	var lobe_positions: Array[Vector3] = [
+		Vector3(-1.55, -0.10, 0.0), Vector3(-0.78, 0.12, 0.0),
+		Vector3(0.0, 0.30, 0.0), Vector3(0.82, 0.10, 0.0),
+		Vector3(1.55, -0.12, 0.0), Vector3(-0.38, 0.72, 0.02),
+		Vector3(0.48, 0.66, 0.02),
+	]
+	var lobe_scales: Array[Vector3] = [
+		Vector3(1.05, 0.58, 0.52), Vector3(1.18, 0.72, 0.58),
+		Vector3(1.38, 0.82, 0.66), Vector3(1.15, 0.70, 0.57),
+		Vector3(0.98, 0.54, 0.48), Vector3(0.92, 0.88, 0.58),
+		Vector3(0.84, 0.76, 0.54),
+	]
+	for cloud_index: int in range(cloud_positions.size()):
+		var cloud: Node3D = Node3D.new()
+		cloud.name = "MovingCloud%d" % cloud_index
+		horizon_backdrop.add_child(cloud)
+		cloud.position = cloud_positions[cloud_index]
+		cloud.scale = Vector3.ONE * cloud_sizes[cloud_index]
+		cloud.set_meta("cloud_speed", cloud_speeds[cloud_index])
+		for lobe_index: int in range(lobe_positions.size()):
+			var cloud_lobe: MeshInstance3D = cloud_template.duplicate() as MeshInstance3D
+			cloud_lobe.visible = true
+			cloud_lobe.position = lobe_positions[lobe_index]
+			cloud_lobe.scale = lobe_scales[lobe_index]
+			cloud_lobe.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			cloud.add_child(cloud_lobe)
+		moving_sky_clouds.append(cloud)
+
+func _update_moving_sky_clouds(delta: float) -> void:
+	for cloud: Node3D in moving_sky_clouds:
+		if not is_instance_valid(cloud):
+			continue
+		var cloud_speed: float = float(cloud.get_meta("cloud_speed", 2.0))
+		cloud.position.x += cloud_speed * delta
+		if cloud.position.x > 180.0:
+			cloud.position.x = -180.0
 
 func _prepare_bear_visual() -> void:
 	bear_visual = BEAR_MODEL.instantiate() as Node3D
@@ -509,8 +677,9 @@ func _process(_delta: float) -> void:
 		course_check_elapsed = 0.0
 		_recycle_course()
 	_update_mammoths(_delta)
-	_update_snow_volcano_cycle()
+	_update_background_landform_chain()
 	_update_snowfall(_delta)
+	_update_moving_sky_clouds(_delta)
 	_update_difficulty(_delta)
 	# El plano cubre varios kilómetros para que su borde quede siempre mucho más
 	# lejos que el horizonte visible de la cámara.
@@ -816,8 +985,8 @@ func _build_course() -> void:
 		_add_coin(LANES[safe_lane], -float(reward_distance))
 	_add_gem(LANES[safe_lane], -222.0)
 	var obstacle_data := [
-		[158, BARREL_MODEL], [276, GIANT_PANEL_MODEL], [316, LOG_MODEL],
-		[352, INTERMEDIATE_JUMP_MODEL], [388, GATE_MODEL]
+		[148, GATE_MODEL], [276, BARREL_MODEL], [316, LOG_MODEL],
+		[352, INTERMEDIATE_JUMP_MODEL], [388, GIANT_PANEL_MODEL]
 	]
 	var obstacle_slots: Array[Vector2i] = []
 	for data in obstacle_data:

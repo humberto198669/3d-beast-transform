@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://ciwhp3bcm8m1c" path="res://Scripts/Camera/gamecamera.gd" id="3_camera"]
 [ext_resource type="Texture2D" uid="uid://m5hvi1wi3dcm" path="res://Assets/UI/Icons/coin_icon.png" id="4_coin_icon"]
 [ext_resource type="Texture2D" uid="uid://cmw7wcrytls5f" path="res://Assets/UI/Icons/ubicacion.png" id="5_location_icon"]
-[ext_resource type="PackedScene" uid="uid://ccn3c3xt3mumq" path="res://Assets/Models/Enviroment/world1/cordillera_nieve.glb" id="6_cordillera"]
+[ext_resource type="PackedScene" uid="uid://c7vfb3fv5qwdm" path="res://Assets/Models/Enviroment/world1/Modular/nuevos/montana_lobos.glb" id="6_cordillera"]
 
 [sub_resource type="Shader" id="SideSnowShader"]
 code = "shader_type spatial;
@@ -127,7 +127,7 @@ mesh = SubResource("SideSnowMesh")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -650)
 
 [node name="CordilleraNieve" parent="HorizonBackdrop" unique_id=1463265593 instance=ExtResource("6_cordillera")]
-transform = Transform3D(155, 0, 0, 0, 230, 0, 0, 0, 70, 0, 42, 0)
+transform = Transform3D(130, 0, 0, 0, 195, 0, 0, 0, 60, 0, 60, 0)
 
 [node name="CloudLeft" type="MeshInstance3D" parent="HorizonBackdrop" unique_id=1228390138]
 transform = Transform3D(20, 0, 0, 0, 5, 0, 0, 0, 3, -76, 126, 80)
