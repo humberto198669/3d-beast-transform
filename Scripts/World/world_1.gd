@@ -28,6 +28,7 @@ const NEW_SIDE_COLORFUL := preload("res://Assets/Models/Enviroment/world1/Modula
 const NEW_SIDE_ROCKS := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/piedras.glb")
 const SNOW_VOLCANO_MODEL := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/volcan_nieve.glb")
 const STRAIGHT_MOUNTAINS_MODEL := preload("res://Assets/Models/Enviroment/world1/Modular/nuevos/montanas_rectas.glb")
+const PAUSE_MENU_SCRIPT := preload("res://Scripts/UI/pause_menu.gd")
 
 const LANES := [-2.7, 0.0, 2.7]
 # Solo existen los tres carriles jugables. El paisaje modular comienza justo
@@ -83,6 +84,7 @@ const BEAST_SPEED := 42.0
 @onready var side_snow_base: MeshInstance3D = $SideSnowBase
 @onready var horizon_backdrop: Node3D = $HorizonBackdrop
 @onready var distant_mountain: Node3D = $HorizonBackdrop/CordilleraNieve
+@onready var sun: DirectionalLight3D = $Sun
 @onready var distance_label: Label = $HUD/SafeArea/TopBar/Stats/Distance/Content/Value
 @onready var coins_label: Label = $HUD/SafeArea/TopBar/Stats/CoinCounter/Content/Amount
 @onready var gem_meter: Panel = $HUD/GemMeter
@@ -126,9 +128,31 @@ var transformation_in_progress := false
 var beast_active := false
 var crash_effect_playing := false
 var run_progress_saved := false
+var mobile_performance_mode := false
+var active_side_module_count := SIDE_MODULE_COUNT
+var active_landform_count_per_side := LANDFORM_COUNT_PER_SIDE
+var side_module_loop_length := SIDE_MODULE_LOOP_LENGTH
+var landform_loop_length := LANDFORM_LOOP_LENGTH
+var cached_recyclable_items: Array = []
+var cached_mammoths: Array = []
+var cached_obstacles: Array = []
+var cached_coins: Array = []
+var cached_gems: Array = []
+var cached_bridges: Array = []
+var cached_long_blockers: Array = []
 
 func _ready() -> void:
 	rng.randomize()
+	mobile_performance_mode = OS.get_name() == "Android"
+	if mobile_performance_mode:
+		# En telefono priorizamos estabilidad y conservamos mas de 350 m de
+		# escenario visible. El fondo distante tapa el final de estos modulos.
+		active_side_module_count = 10
+		active_landform_count_per_side = 8
+		Engine.max_fps = 45
+		sun.directional_shadow_max_distance = 90.0
+	side_module_loop_length = SIDE_MODULE_SPACING * active_side_module_count
+	landform_loop_length = LANDFORM_SPACING * active_landform_count_per_side
 	coin_glow_texture = _create_coin_glow_texture()
 	gem_glow_texture = _create_gem_glow_texture()
 	smoke_texture = _create_smoke_texture()
@@ -136,6 +160,7 @@ func _ready() -> void:
 	_prepare_bear_visual()
 	_build_ground()
 	_build_course()
+	_refresh_course_caches()
 	_build_background_landform_chain()
 	_prepare_snowfall()
 	_prepare_moving_sky_clouds()
@@ -146,8 +171,16 @@ func _ready() -> void:
 	player.jump_action_requested.connect(_on_bear_jump_action_requested)
 	get_viewport().size_changed.connect(_apply_mobile_safe_area)
 	_apply_mobile_safe_area()
+	_prepare_pause_menu()
 	_apply_speed_level()
 	message_panel.hide()
+
+func _prepare_pause_menu() -> void:
+	var pause_menu := Control.new()
+	pause_menu.name = "PauseMenu"
+	pause_menu.set_script(PAUSE_MENU_SCRIPT)
+	pause_menu.call("setup", self, safe_area.offset_top)
+	$HUD.add_child(pause_menu)
 
 func _apply_mobile_safe_area() -> void:
 	var screen_size: Vector2i = DisplayServer.screen_get_size()
@@ -180,7 +213,7 @@ func _build_background_landform_chain() -> void:
 	# tres montañas y otro volcán. Las piezas se solapan visualmente.
 	for side_index: int in range(2):
 		var side_sign: float = -1.0 if side_index == 0 else 1.0
-		for slot_index: int in range(LANDFORM_COUNT_PER_SIDE):
+		for slot_index: int in range(active_landform_count_per_side):
 			var pattern_index: int = (slot_index + side_index * 3) % 9
 			var use_volcano: bool = pattern_index == 4 or pattern_index == 8
 			var z_position: float = -135.0 - float(slot_index) * LANDFORM_SPACING
@@ -239,7 +272,7 @@ func _update_background_landform_chain() -> void:
 		if not is_instance_valid(landform):
 			continue
 		if landform.global_position.z > player.global_position.z + 105.0:
-			landform.position.z -= LANDFORM_LOOP_LENGTH
+			landform.position.z -= landform_loop_length
 
 func _build_snow_volcano_cycle() -> void:
 	# Dos volcanes separados 300 m: el cercano enmarca un costado y el siguiente
@@ -331,7 +364,7 @@ func _update_distant_mountain(distance: float) -> void:
 func _prepare_snowfall() -> void:
 	snowfall = GPUParticles3D.new()
 	snowfall.name = "MountainSnowfall"
-	snowfall.amount = 180
+	snowfall.amount = 72 if mobile_performance_mode else 180
 	snowfall.lifetime = 5.0
 	snowfall.randomness = 0.55
 	snowfall.local_coords = false
@@ -398,7 +431,8 @@ func _prepare_moving_sky_clouds() -> void:
 		Vector3(0.98, 0.54, 0.48), Vector3(0.92, 0.88, 0.58),
 		Vector3(0.84, 0.76, 0.54),
 	]
-	for cloud_index: int in range(cloud_positions.size()):
+	var cloud_count: int = 4 if mobile_performance_mode else cloud_positions.size()
+	for cloud_index: int in range(cloud_count):
 		var cloud: Node3D = Node3D.new()
 		cloud.name = "MovingCloud%d" % cloud_index
 		horizon_backdrop.add_child(cloud)
@@ -747,6 +781,18 @@ func _add_distance_difficulty_obstacles(amount: int) -> void:
 			break
 		if not placed:
 			continue
+	_refresh_course_caches()
+
+func _refresh_course_caches() -> void:
+	# Estas listas cambian solo al construir el circuito o sumar dificultad.
+	# Evita consultar repetidamente todo el SceneTree durante la carrera.
+	cached_recyclable_items = get_tree().get_nodes_in_group("recyclable_course")
+	cached_mammoths = get_tree().get_nodes_in_group("moving_mammoth")
+	cached_obstacles = get_tree().get_nodes_in_group("obstacle")
+	cached_coins = get_tree().get_nodes_in_group("collectible_coin")
+	cached_gems = get_tree().get_nodes_in_group("collectible_gem")
+	cached_bridges = get_tree().get_nodes_in_group("snow_bridge_zone")
+	cached_long_blockers = get_tree().get_nodes_in_group("long_lane_blocker")
 
 func _is_difficulty_spawn_clear(spawn_x: float, spawn_z: float) -> bool:
 	for obstacle_value in get_tree().get_nodes_in_group("obstacle"):
@@ -790,24 +836,26 @@ func _has_course_overlap(x: float, z: float, separation: float) -> bool:
 	return false
 
 func _recycle_course() -> void:
-	for item in get_tree().get_nodes_in_group("recyclable_course"):
+	for item in cached_recyclable_items:
+		if not is_instance_valid(item):
+			continue
 		if item.is_in_group("moving_mammoth"):
 			continue
-		if is_instance_valid(item) and item.global_position.z > player.global_position.z + 12.0:
+		if item.global_position.z > player.global_position.z + 12.0:
 			# El paisaje lateral cubre mas distancia para ocultar su union final.
-			var recycle_length: float = SIDE_MODULE_LOOP_LENGTH if item.is_in_group("side_environment_module") else LEVEL_LENGTH
+			var recycle_length: float = side_module_loop_length if item.is_in_group("side_environment_module") else LEVEL_LENGTH
 			item.position.z -= recycle_length
-			if item.is_in_group("side_environment_module"):
-				var side_item: Node3D = item as Node3D
-				var next_serial: int = int(side_item.get_meta("scenario_serial", 0)) + SIDE_MODULE_COUNT
-				_configure_side_scenario(side_item, bool(side_item.get_meta("right_side", false)), next_serial)
+			# Los modulos laterales ya contienen una variante completa. Reutilizarlos
+			# sin borrar ni instanciar sus hijos evita tirones y picos de memoria.
 
 func _update_mammoths(delta: float) -> void:
 	mammoth_path_check_elapsed += delta
 	var should_check_path: bool = mammoth_path_check_elapsed >= COURSE_CHECK_INTERVAL
 	if should_check_path:
 		mammoth_path_check_elapsed = 0.0
-	for mammoth_value in get_tree().get_nodes_in_group("moving_mammoth"):
+	for mammoth_value in cached_mammoths:
+		if not is_instance_valid(mammoth_value):
+			continue
 		var mammoth: AnimatableBody3D = mammoth_value as AnimatableBody3D
 		if mammoth == null:
 			continue
@@ -823,7 +871,9 @@ func _update_mammoths(delta: float) -> void:
 			_reposition_mammoth_ahead(mammoth)
 
 func _mammoth_is_approaching_bridge(mammoth: AnimatableBody3D) -> bool:
-	for bridge_value in get_tree().get_nodes_in_group("snow_bridge_zone"):
+	for bridge_value in cached_bridges:
+		if not is_instance_valid(bridge_value):
+			continue
 		var bridge: Node3D = bridge_value as Node3D
 		if bridge == null or bridge.is_queued_for_deletion():
 			continue
@@ -832,7 +882,9 @@ func _mammoth_is_approaching_bridge(mammoth: AnimatableBody3D) -> bool:
 		var distance_to_bridge: float = bridge.global_position.z - mammoth.global_position.z
 		if distance_to_bridge > -6.0 and distance_to_bridge < 52.0:
 			return true
-	for blocker_value in get_tree().get_nodes_in_group("long_lane_blocker"):
+	for blocker_value in cached_long_blockers:
+		if not is_instance_valid(blocker_value):
+			continue
 		var blocker: Node3D = blocker_value as Node3D
 		if blocker == null or blocker.is_queued_for_deletion():
 			continue
@@ -864,7 +916,9 @@ func _reposition_mammoth_ahead(mammoth: AnimatableBody3D) -> void:
 			player.global_position.z - rng.randf_range(230.0, 350.0)
 		)
 		var bridge_clear: bool = true
-		for bridge_value in get_tree().get_nodes_in_group("snow_bridge_zone"):
+		for bridge_value in cached_bridges:
+			if not is_instance_valid(bridge_value):
+				continue
 			var bridge: Node3D = bridge_value as Node3D
 			if bridge == null or bridge.is_queued_for_deletion():
 				continue
@@ -890,21 +944,27 @@ func _reposition_mammoth_ahead(mammoth: AnimatableBody3D) -> void:
 func _clear_mammoth_path(mammoth: AnimatableBody3D) -> void:
 	# Retira solamente lo que el mamut esta a punto de atravesar. De esta forma
 	# el resto del circuito conserva monedas y obstaculos en los tres carriles.
-	for obstacle_value in get_tree().get_nodes_in_group("obstacle"):
+	for obstacle_value in cached_obstacles:
+		if not is_instance_valid(obstacle_value):
+			continue
 		var obstacle: Node3D = obstacle_value as Node3D
 		if obstacle == null or obstacle == mammoth or obstacle.is_in_group("moving_mammoth"):
 			continue
 		if absf(obstacle.global_position.x - mammoth.global_position.x) < 0.8 \
 		and absf(obstacle.global_position.z - mammoth.global_position.z) < 18.0:
 			obstacle.queue_free()
-	for coin_value in get_tree().get_nodes_in_group("collectible_coin"):
+	for coin_value in cached_coins:
+		if not is_instance_valid(coin_value):
+			continue
 		var coin: Area3D = coin_value as Area3D
 		if coin == null:
 			continue
 		if absf(coin.global_position.x - mammoth.global_position.x) < 0.8 \
 		and absf(coin.global_position.z - mammoth.global_position.z) < 18.0:
 			coin.queue_free()
-	for gem_value in get_tree().get_nodes_in_group("collectible_gem"):
+	for gem_value in cached_gems:
+		if not is_instance_valid(gem_value):
+			continue
 		var gem: Area3D = gem_value as Area3D
 		if gem == null:
 			continue
@@ -912,8 +972,16 @@ func _clear_mammoth_path(mammoth: AnimatableBody3D) -> void:
 		and absf(gem.global_position.z - mammoth.global_position.z) < 18.0:
 			gem.queue_free()
 
-func _unhandled_input(event: InputEvent) -> void:
-	if finished and not crash_effect_playing and (event.is_action_pressed("uiaccept") or (event is InputEventScreenTouch and event.pressed)):
+func _input(event: InputEvent) -> void:
+	if not finished or crash_effect_playing:
+		return
+	var return_to_menu: bool = event.is_action_pressed("uiaccept")
+	if event is InputEventScreenTouch:
+		return_to_menu = event.pressed
+	elif event is InputEventMouseButton:
+		return_to_menu = event.pressed and event.button_index == MOUSE_BUTTON_LEFT
+	if return_to_menu:
+		get_viewport().set_input_as_handled()
 		SceneTransition.change_scene("res://Scenes/Menu.tscn")
 
 func _build_ground() -> void:
@@ -928,6 +996,7 @@ func _build_ground() -> void:
 			tile.scale = Vector3(2.5, 2.5, 3.0)
 			tile.position = Vector3(lane_x, 0.0, z)
 			ground.add_child(tile)
+			_disable_geometry_shadows(tile)
 			row.append(tile)
 		ground_rows.append(row)
 
@@ -1027,7 +1096,7 @@ func _build_course() -> void:
 		_add_decoration(SIGN_MODEL, Vector3(signal_side * rng.randf_range(6.9, 7.4), 0.0, -float(signal_distance)), rng.randf_range(1.05, 1.3), rng.randf_range(-10.0, 10.0))
 		signal_distance += rng.randi_range(34, 50)
 	# Franja continua de prueba: diez módulos por cada lado cubren todo el tramo.
-	for module_index: int in range(SIDE_MODULE_COUNT):
+	for module_index: int in range(active_side_module_count):
 		var module_z: float = -20.0 - float(module_index) * SIDE_MODULE_SPACING
 		_add_side_forest_module(Vector3(-6.1, 0.0, module_z), false, module_index)
 		_add_side_forest_module(Vector3(6.1, 0.0, module_z), true, module_index + 3)
@@ -1394,6 +1463,7 @@ func _add_coin(x: float, z: float, height := 1.05) -> void:
 	var visual := COIN_MODEL.instantiate()
 	visual.scale = Vector3.ONE * 0.42
 	area.add_child(visual)
+	_disable_geometry_shadows(visual)
 	var collision := CollisionShape3D.new()
 	var shape := SphereShape3D.new()
 	shape.radius = 0.5
@@ -1585,7 +1655,7 @@ func _add_fitted_side_base(holder: Node3D, local_x: float, target_width: float =
 		(bounds.position.z + bounds.size.z * 0.5) * fitted_scale.z
 	)
 	visual.position = Vector3(local_x, 0.0, 0.0) - scaled_anchor.rotated(Vector3.UP, angle)
-	_optimize_side_asset(visual)
+	_optimize_side_asset(visual, false)
 
 func _add_side_prop(holder: Node3D, model: PackedScene, local_position: Vector3, target_height: float, max_footprint: float, rotation_y: float) -> void:
 	var visual: Node3D = model.instantiate() as Node3D
@@ -1607,12 +1677,22 @@ func _add_side_prop(holder: Node3D, model: PackedScene, local_position: Vector3,
 	visual.position = local_position - anchor.rotated(Vector3.UP, angle)
 	_optimize_side_asset(visual)
 
-func _optimize_side_asset(visual: Node3D) -> void:
+func _optimize_side_asset(visual: Node3D, limit_visibility: bool = true) -> void:
 	for collision_node: Node in visual.find_children("*", "CollisionShape3D", true, false):
 		var collision: CollisionShape3D = collision_node as CollisionShape3D
 		if collision != null:
 			collision.disabled = true
 	for geometry_node: Node in visual.find_children("*", "GeometryInstance3D", true, false):
+		var geometry: GeometryInstance3D = geometry_node as GeometryInstance3D
+		if geometry != null:
+			geometry.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			if mobile_performance_mode and limit_visibility:
+				geometry.visibility_range_end = 230.0
+
+func _disable_geometry_shadows(root: Node) -> void:
+	if root is GeometryInstance3D:
+		(root as GeometryInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for geometry_node: Node in root.find_children("*", "GeometryInstance3D", true, false):
 		var geometry: GeometryInstance3D = geometry_node as GeometryInstance3D
 		if geometry != null:
 			geometry.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cn3n1iby1hity"
 path.s3tc="res://.godot/imported/signal_2.jpg-fea47f945175687f19ab647c63da4e7d.s3tc.ctex"
+path.etc2="res://.godot/imported/signal_2.jpg-fea47f945175687f19ab647c63da4e7d.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Models/Obstacles/world1/signal_2.jpg"
-dest_files=["res://.godot/imported/signal_2.jpg-fea47f945175687f19ab647c63da4e7d.s3tc.ctex"]
+dest_files=["res://.godot/imported/signal_2.jpg-fea47f945175687f19ab647c63da4e7d.s3tc.ctex", "res://.godot/imported/signal_2.jpg-fea47f945175687f19ab647c63da4e7d.etc2.ctex"]
 
 [params]
 

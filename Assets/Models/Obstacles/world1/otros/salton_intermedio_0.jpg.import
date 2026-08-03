@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://fet4hnblbhh6"
 path.s3tc="res://.godot/imported/salton_intermedio_0.jpg-002abe0e1d41a60ae6902b535729842b.s3tc.ctex"
+path.etc2="res://.godot/imported/salton_intermedio_0.jpg-002abe0e1d41a60ae6902b535729842b.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Models/Obstacles/world1/otros/salton_intermedio_0.jpg"
-dest_files=["res://.godot/imported/salton_intermedio_0.jpg-002abe0e1d41a60ae6902b535729842b.s3tc.ctex"]
+dest_files=["res://.godot/imported/salton_intermedio_0.jpg-002abe0e1d41a60ae6902b535729842b.s3tc.ctex", "res://.godot/imported/salton_intermedio_0.jpg-002abe0e1d41a60ae6902b535729842b.etc2.ctex"]
 
 [params]
 

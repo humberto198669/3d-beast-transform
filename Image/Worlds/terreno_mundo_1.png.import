@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dqx1yiiggh26t"
 path.s3tc="res://.godot/imported/terreno_mundo_1.png-131f0dfcffdb108a5cfd7fdafcc48ed8.s3tc.ctex"
+path.etc2="res://.godot/imported/terreno_mundo_1.png-131f0dfcffdb108a5cfd7fdafcc48ed8.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://Image/Worlds/terreno_mundo_1.png"
-dest_files=["res://.godot/imported/terreno_mundo_1.png-131f0dfcffdb108a5cfd7fdafcc48ed8.s3tc.ctex"]
+dest_files=["res://.godot/imported/terreno_mundo_1.png-131f0dfcffdb108a5cfd7fdafcc48ed8.s3tc.ctex", "res://.godot/imported/terreno_mundo_1.png-131f0dfcffdb108a5cfd7fdafcc48ed8.etc2.ctex"]
 
 [params]
 

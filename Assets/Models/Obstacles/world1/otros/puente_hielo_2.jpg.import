@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cjdqn6duho8n"
 path.s3tc="res://.godot/imported/puente_hielo_2.jpg-2e0c23e2beec314ba9b2aaa9f8843942.s3tc.ctex"
+path.etc2="res://.godot/imported/puente_hielo_2.jpg-2e0c23e2beec314ba9b2aaa9f8843942.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Models/Obstacles/world1/otros/puente_hielo_2.jpg"
-dest_files=["res://.godot/imported/puente_hielo_2.jpg-2e0c23e2beec314ba9b2aaa9f8843942.s3tc.ctex"]
+dest_files=["res://.godot/imported/puente_hielo_2.jpg-2e0c23e2beec314ba9b2aaa9f8843942.s3tc.ctex", "res://.godot/imported/puente_hielo_2.jpg-2e0c23e2beec314ba9b2aaa9f8843942.etc2.ctex"]
 
 [params]
 

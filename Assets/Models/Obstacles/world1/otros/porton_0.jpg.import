@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://y406yxtglahj"
 path.s3tc="res://.godot/imported/porton_0.jpg-c5b481f3368cc839bf3f0c895d0c433a.s3tc.ctex"
+path.etc2="res://.godot/imported/porton_0.jpg-c5b481f3368cc839bf3f0c895d0c433a.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Models/Obstacles/world1/otros/porton_0.jpg"
-dest_files=["res://.godot/imported/porton_0.jpg-c5b481f3368cc839bf3f0c895d0c433a.s3tc.ctex"]
+dest_files=["res://.godot/imported/porton_0.jpg-c5b481f3368cc839bf3f0c895d0c433a.s3tc.ctex", "res://.godot/imported/porton_0.jpg-c5b481f3368cc839bf3f0c895d0c433a.etc2.ctex"]
 
 [params]
 

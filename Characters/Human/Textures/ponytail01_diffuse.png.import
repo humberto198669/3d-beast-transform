@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cgm1beqcj0mkq"
 path.s3tc="res://.godot/imported/ponytail01_diffuse.png-fb44de8d61cf23100e91f156d2da53dc.s3tc.ctex"
+path.etc2="res://.godot/imported/ponytail01_diffuse.png-fb44de8d61cf23100e91f156d2da53dc.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://Characters/Human/Textures/ponytail01_diffuse.png"
-dest_files=["res://.godot/imported/ponytail01_diffuse.png-fb44de8d61cf23100e91f156d2da53dc.s3tc.ctex"]
+dest_files=["res://.godot/imported/ponytail01_diffuse.png-fb44de8d61cf23100e91f156d2da53dc.s3tc.ctex", "res://.godot/imported/ponytail01_diffuse.png-fb44de8d61cf23100e91f156d2da53dc.etc2.ctex"]
 
 [params]
 

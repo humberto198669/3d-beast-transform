@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bhllif2c50qgx"
 path.s3tc="res://.godot/imported/boton_inicio_boton_inicio_normal.jpg-6ee23d407a6ea87b7951b2340fd6be03.s3tc.ctex"
+path.etc2="res://.godot/imported/boton_inicio_boton_inicio_normal.jpg-6ee23d407a6ea87b7951b2340fd6be03.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Models/Objects/boton_inicio_boton_inicio_normal.jpg"
-dest_files=["res://.godot/imported/boton_inicio_boton_inicio_normal.jpg-6ee23d407a6ea87b7951b2340fd6be03.s3tc.ctex"]
+dest_files=["res://.godot/imported/boton_inicio_boton_inicio_normal.jpg-6ee23d407a6ea87b7951b2340fd6be03.s3tc.ctex", "res://.godot/imported/boton_inicio_boton_inicio_normal.jpg-6ee23d407a6ea87b7951b2340fd6be03.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://brclqpywts2pn"
 path.s3tc="res://.godot/imported/tren_gigante_0.jpg-a73a4afe4fe107ba22bb88d831790631.s3tc.ctex"
+path.etc2="res://.godot/imported/tren_gigante_0.jpg-a73a4afe4fe107ba22bb88d831790631.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Models/Obstacles/world1/otros/tren_gigante_0.jpg"
-dest_files=["res://.godot/imported/tren_gigante_0.jpg-a73a4afe4fe107ba22bb88d831790631.s3tc.ctex"]
+dest_files=["res://.godot/imported/tren_gigante_0.jpg-a73a4afe4fe107ba22bb88d831790631.s3tc.ctex", "res://.godot/imported/tren_gigante_0.jpg-a73a4afe4fe107ba22bb88d831790631.etc2.ctex"]
 
 [params]
 

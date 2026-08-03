@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://i4wicsj3uc3s"
 path.s3tc="res://.godot/imported/ethan_bear_left_turn_0.png-1e7dda9f1183752fcd8fe275b26ce166.s3tc.ctex"
+path.etc2="res://.godot/imported/ethan_bear_left_turn_0.png-1e7dda9f1183752fcd8fe275b26ce166.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Characters/Bear/Animation/ethan_bear_left_turn_0.png"
-dest_files=["res://.godot/imported/ethan_bear_left_turn_0.png-1e7dda9f1183752fcd8fe275b26ce166.s3tc.ctex"]
+dest_files=["res://.godot/imported/ethan_bear_left_turn_0.png-1e7dda9f1183752fcd8fe275b26ce166.s3tc.ctex", "res://.godot/imported/ethan_bear_left_turn_0.png-1e7dda9f1183752fcd8fe275b26ce166.etc2.ctex"]
 
 [params]
 

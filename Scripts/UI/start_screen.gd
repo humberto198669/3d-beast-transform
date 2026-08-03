@@ -15,6 +15,8 @@ var elapsed := 0.0
 var loading_done := false
 
 func _ready():
+	if OS.has_feature("mobile"):
+		DisplayServer.screen_set_orientation(DisplayServer.SCREEN_PORTRAIT)
 	progress_bar.value = 0
 	enter_button.visible = false
 	enter_button.disabled = true

@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b16p7e87gt2v7"
 path.s3tc="res://.godot/imported/shoes06_diffuse.png-cdd435bb6f92a8e523ff56021a60d61a.s3tc.ctex"
+path.etc2="res://.godot/imported/shoes06_diffuse.png-cdd435bb6f92a8e523ff56021a60d61a.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://Characters/Human/Textures/shoes06_diffuse.png"
-dest_files=["res://.godot/imported/shoes06_diffuse.png-cdd435bb6f92a8e523ff56021a60d61a.s3tc.ctex"]
+dest_files=["res://.godot/imported/shoes06_diffuse.png-cdd435bb6f92a8e523ff56021a60d61a.s3tc.ctex", "res://.godot/imported/shoes06_diffuse.png-cdd435bb6f92a8e523ff56021a60d61a.etc2.ctex"]
 
 [params]
 

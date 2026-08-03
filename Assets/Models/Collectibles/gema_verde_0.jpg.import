@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b10fhvk1c1vcb"
 path.s3tc="res://.godot/imported/gema_verde_0.jpg-06dfd34e528c1ed066422206e4e74ecd.s3tc.ctex"
+path.etc2="res://.godot/imported/gema_verde_0.jpg-06dfd34e528c1ed066422206e4e74ecd.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Models/Collectibles/gema_verde_0.jpg"
-dest_files=["res://.godot/imported/gema_verde_0.jpg-06dfd34e528c1ed066422206e4e74ecd.s3tc.ctex"]
+dest_files=["res://.godot/imported/gema_verde_0.jpg-06dfd34e528c1ed066422206e4e74ecd.s3tc.ctex", "res://.godot/imported/gema_verde_0.jpg-06dfd34e528c1ed066422206e4e74ecd.etc2.ctex"]
 
 [params]
 
@@ -40,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=0

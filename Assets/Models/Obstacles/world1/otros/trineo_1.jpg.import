@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ov7suis2jmty"
 path.s3tc="res://.godot/imported/trineo_1.jpg-ad5da49e445bb21c016039c0be6dd1fa.s3tc.ctex"
+path.etc2="res://.godot/imported/trineo_1.jpg-ad5da49e445bb21c016039c0be6dd1fa.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Models/Obstacles/world1/otros/trineo_1.jpg"
-dest_files=["res://.godot/imported/trineo_1.jpg-ad5da49e445bb21c016039c0be6dd1fa.s3tc.ctex"]
+dest_files=["res://.godot/imported/trineo_1.jpg-ad5da49e445bb21c016039c0be6dd1fa.s3tc.ctex", "res://.godot/imported/trineo_1.jpg-ad5da49e445bb21c016039c0be6dd1fa.etc2.ctex"]
 
 [params]
 

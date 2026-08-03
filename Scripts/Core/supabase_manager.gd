@@ -6,6 +6,7 @@ signal cloud_sync_finished(success: bool, message: String)
 const PROJECT_URL := "https://iawxlqnrleztkhiwyeli.supabase.co"
 const PUBLISHABLE_KEY := "sb_publishable_C3JA5_9VGnYpu0JD_yxz5g_Ut2lddE-"
 const PASSWORD_RESET_URL := "https://humberto198669.github.io/3d-beast-transform/account/reset-password.html"
+const ACCOUNT_CONFIRMATION_URL := "https://humberto198669.github.io/3d-beast-transform/account/confirmed.html"
 const SESSION_PATH := "user://supabase_session.cfg"
 
 var access_token: String = ""
@@ -22,7 +23,7 @@ func sign_up(email: String, password: String) -> Dictionary:
 	var payload: Dictionary = {"email": email.strip_edges(), "password": password}
 	var result: Dictionary = await _request_json(
 		HTTPClient.METHOD_POST,
-		PROJECT_URL + "/auth/v1/signup",
+		PROJECT_URL + "/auth/v1/signup?redirect_to=" + ACCOUNT_CONFIRMATION_URL.uri_encode(),
 		_public_headers(),
 		payload
 	)

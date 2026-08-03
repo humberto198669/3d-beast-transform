@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c263wjrpxmgwa"
 path.s3tc="res://.godot/imported/cordillera_nieve_2.jpg-7d524e58adeb6f2b8e78bfc2e30587dd.s3tc.ctex"
+path.etc2="res://.godot/imported/cordillera_nieve_2.jpg-7d524e58adeb6f2b8e78bfc2e30587dd.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Models/Enviroment/world1/cordillera_nieve_2.jpg"
-dest_files=["res://.godot/imported/cordillera_nieve_2.jpg-7d524e58adeb6f2b8e78bfc2e30587dd.s3tc.ctex"]
+dest_files=["res://.godot/imported/cordillera_nieve_2.jpg-7d524e58adeb6f2b8e78bfc2e30587dd.s3tc.ctex", "res://.godot/imported/cordillera_nieve_2.jpg-7d524e58adeb6f2b8e78bfc2e30587dd.etc2.ctex"]
 
 [params]
 

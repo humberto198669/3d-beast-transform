@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b8csg3u3w6ut7"
 path.s3tc="res://.godot/imported/barril_barril_basecolor.jpg-2dbfbcbc1d54b72b3d07dbd6de4ed1d1.s3tc.ctex"
+path.etc2="res://.godot/imported/barril_barril_basecolor.jpg-2dbfbcbc1d54b72b3d07dbd6de4ed1d1.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Models/Obstacles/world1/barril_barril_basecolor.jpg"
-dest_files=["res://.godot/imported/barril_barril_basecolor.jpg-2dbfbcbc1d54b72b3d07dbd6de4ed1d1.s3tc.ctex"]
+dest_files=["res://.godot/imported/barril_barril_basecolor.jpg-2dbfbcbc1d54b72b3d07dbd6de4ed1d1.s3tc.ctex", "res://.godot/imported/barril_barril_basecolor.jpg-2dbfbcbc1d54b72b3d07dbd6de4ed1d1.etc2.ctex"]
 
 [params]
 
